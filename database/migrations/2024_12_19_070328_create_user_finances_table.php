@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('programs', function (Blueprint $table) {
+        Schema::create('user_finances', function (Blueprint $table) {
             $table->id();
-            $table->string('menu_id')->constrained('menus');
-            $table->string('name')->unique();
-            $table->text('description');
-            $table->integer('price');
-            $table->integer('duration_days');
+            $table->string('users_id')->constrained('users')->onDelete('casade')->onUpdate('casade');
+            $table->string('bank_name_id')->constrained('bank_name')->onDelete('casade')->onUpdate('casade');
+            $table->string('bank_account');
+            $table->string('bank_account_name');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('programs');
+        Schema::dropIfExists('user_finances');
     }
 };

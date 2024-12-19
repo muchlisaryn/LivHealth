@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\BankName;
 use App\Models\Categories;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -16,16 +17,12 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Reyhan',
-            'email' => 'reyhan@livhealth.com',
-            'password' => '123456',
-            'role' => 'admin'
-        ]);
-
+      
         $this->call([
+            BankNameSeeder::class,
             CategorySeeder::class,
-            MenuSeeder::class
+            MenuSeeder::class,
+            UserSeeder::class
         ]);
         
     }

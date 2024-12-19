@@ -12,6 +12,7 @@ class Programs extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'menu_id',
         'name',
         'description',
         'price',
@@ -19,7 +20,13 @@ class Programs extends Model
     ];
 
     protected $casts = [
-        'attachments' => 'array'
+        'attachments' => 'array',
+        'menu_id' => 'array'
     ];
+
+    public function menu()
+    {
+        return $this->belongsTo(Menus::class, 'menu_id');
+    }
 
 }

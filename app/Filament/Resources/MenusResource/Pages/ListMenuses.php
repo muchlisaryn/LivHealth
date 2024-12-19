@@ -17,7 +17,6 @@ class ListMenuses extends ListRecords
         return [
             Actions\CreateAction::make()
             ->label('Add New Menu'),
-
         ];
 
         

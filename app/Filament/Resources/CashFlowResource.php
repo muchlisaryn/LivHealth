@@ -2,52 +2,48 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\MenusResource\Pages;
-use App\Filament\Resources\MenusResource\RelationManagers;
-use App\Models\Categories;
-use App\Models\Menus;
+use App\Filament\Resources\CashFlowResource\Pages;
+use App\Filament\Resources\CashFlowResource\RelationManagers;
+use App\Models\CashFlow;
+use App\Models\UserFinance;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class MenusResource extends Resource
+class CashFlowResource extends Resource
 {
-    protected static ?string $model = Menus::class;
+    protected static ?string $model = CashFlow::class;
 
-    protected static ?string $navigationLabel = 'Menu';
+    protected static ?string $navigationIcon = 'heroicon-o-funnel';
 
-    protected static ?string $navigationIcon = 'heroicon-o-book-open';
-
-    protected static ?string $navigationGroup = 'Master';
-    
-  
+    protected static ?string $navigationGroup = 'Finance';
 
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([   
-                Forms\Components\TextInput::make('name')
-                    ->required()
+            ->schema([
+                Forms\Components\Select::make('finance_id')
+                    ->label('Finance Account')
                     ->columnSpanFull()
-                    ->maxLength(255),
-                Forms\Components\Select::make('category_id')
-                    ->label('category')
-                    ->multiple()
-                    ->searchable()
-                    ->relationship('category', 'name')
+                    ->required()
                     ->options(
-                        Categories::query()
-                        ->pluck('name', 'id')
-                        ->toArray()
+                        UserFinance::query()
+                        ->pluck('bank_account_name', 'id')
+                    ),
+                Forms\Components\Select::make('type')
+                    ->options(
+                        [
+                            'income' => 'Income',
+                            'expense' => 'Expense'
+                        ]
                     )
                     ->required(),
-                Forms\Components\TextInput::make('price')
+                Forms\Components\TextInput::make('total')
                     ->required()
                     ->numeric()
                     ->inputMode('decimal')
@@ -58,10 +54,9 @@ class MenusResource extends Resource
                     ->required()
                     ->columnSpanFull(),
                 Forms\Components\FileUpload::make('attachments')
-                    ->directory('menu')
-                    ->visibility('public')
-                    ->columnSpanFull()
-                    ->multiple(),
+                    ->directory('bukti_transaksi')
+                    ->required()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -69,24 +64,21 @@ class MenusResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                Tables\Columns\TextColumn::make('user_finance.bank_account_name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->money('IDR')
-                    ->sortable()
-                  
+                Tables\Columns\TextColumn::make('type'),
+                Tables\Columns\TextColumn::make('total')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('description')
+                    ->numeric()
+                    ->sortable(),
             ])
             ->filters([
-                SelectFilter::make('category')
-                ->label('Category')
-                ->options(
-                    Categories::all()->pluck('name', 'id') 
-                )
-                ->query(fn (Builder $query, array $data) => $data['value'] ? $query->where('category_id', $data['value']) : $query) 
+                
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -107,9 +99,9 @@ class MenusResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListMenuses::route('/'),
-            'create' => Pages\CreateMenus::route('/create'),
-            'edit' => Pages\EditMenus::route('/{record}/edit'),
+            'index' => Pages\ListCashFlows::route('/'),
+            'create' => Pages\CreateCashFlow::route('/create'),
+            'edit' => Pages\EditCashFlow::route('/{record}/edit'),
         ];
     }
 

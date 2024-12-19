@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('programs', function (Blueprint $table) {
+        Schema::create('bank_names', function (Blueprint $table) {
             $table->id();
-            $table->string('menu_id')->constrained('menus');
-            $table->string('name')->unique();
-            $table->text('description');
-            $table->integer('price');
-            $table->integer('duration_days');
+            $table->string('name');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('programs');
+        Schema::dropIfExists('bank_names');
     }
 };

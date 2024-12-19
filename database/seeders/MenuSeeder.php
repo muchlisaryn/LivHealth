@@ -77,8 +77,15 @@ class MenuSeeder extends Seeder
             ],
         ];
 
+        // Ambil semua ID kategori yang ada di database
+        $categoryIds = Categories::pluck('id')->toArray();
+
         foreach ($menus as $menu) {
-            $menu['category_id'] = Categories::inRandomORder()->first()->id;
+            if (!empty($categoryIds)) {
+                // Pilih ID kategori secara acak dari array $categoryIds
+                $menu['category_id'] = $categoryIds[array_rand($categoryIds)];
+            }
+
             Menus::create($menu);
         }
     }

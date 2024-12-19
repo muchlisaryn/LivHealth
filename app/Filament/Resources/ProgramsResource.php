@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProgramsResource\Pages;
 use App\Filament\Resources\ProgramsResource\RelationManagers;
+use App\Models\Menus;
 use App\Models\Programs;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -22,7 +23,6 @@ class ProgramsResource extends Resource
 
     protected static ?string $navigationGroup = 'Master';
 
-
     public static function form(Form $form): Form
     {
         return $form
@@ -31,22 +31,30 @@ class ProgramsResource extends Resource
                     ->required()
                     ->columnSpanFull()
                     ->maxLength(255),
-                    Forms\Components\TextInput::make('price')
+                Forms\Components\Textarea::make('description')
+                    ->required()
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('price')
                     ->required()
                     ->numeric()
+                    ->inputMode('decimal')
                     ->mask(RawJs::make('$money($input)'))
                     ->stripCharacters(',')
                     ->prefix('Rp'),
                 Forms\Components\TextInput::make('duration_days')
                     ->required()
-                    ->suffix('Minggu')
-                    ->minValue(1)
                     ->numeric(),
-                Forms\Components\Textarea::make('description')
+                Forms\Components\Select::make('menu_id')
                     ->required()
-                    ->rows(12)
+                    ->label('menu')
+                    ->multiple()
+                    ->searchable()
+                    ->options(
+                        Menus::query()
+                        ->pluck('name', 'id')
+                        ->toArray()
+                    )
                     ->columnSpanFull(),
-                
             ]);
     }
 
@@ -56,29 +64,15 @@ class ProgramsResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('slug')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('price')
-                    ->money()
+                    ->money('IDR')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('duration_days')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
