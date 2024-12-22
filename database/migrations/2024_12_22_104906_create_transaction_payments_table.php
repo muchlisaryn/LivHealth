@@ -11,18 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {   
-        Schema::create('programs', function (Blueprint $table) {
+
+
+        Schema::create('transaction_payments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('menu_id');
-            $table->string('name')->unique();
-            $table->text('description');
-            $table->integer('price');
-            $table->integer('duration_days');
+            $table->unsignedBigInteger('transaction_id');
+            $table->enum('status_payment', ['Pending', 'Rejected' , 'Paid'])->default('Pending');
+            $table->longText('attachments')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('menu_id')->references('id')->on('menuses');
+            $table->foreign('transaction_id')->references('id')->on('transactions');
         });
+        
     }
 
     /**
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('programs');
+        Schema::dropIfExists('transaction_payments');
     }
 };

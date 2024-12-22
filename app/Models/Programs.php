@@ -20,7 +20,6 @@ class Programs extends Model
     ];
 
     protected $casts = [
-        'attachments' => 'array',
         'menu_id' => 'array'
     ];
 

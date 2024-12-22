@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\BankName;
-use App\Models\Categories;
-use App\Models\User;
+
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\TransactionPayment;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,10 +19,14 @@ class DatabaseSeeder extends Seeder
 
       
         $this->call([
+            UserSeeder::class,
             BankNameSeeder::class,
             CategorySeeder::class,
             MenuSeeder::class,
-            UserSeeder::class
+            ProgramSeeder::class,
+            TransactionSeeder::class,
+            TransactionPaymentSeeder::class,
+            DeliveryStatusSeeder::class
         ]);
         
     }

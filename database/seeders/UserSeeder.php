@@ -44,6 +44,18 @@ class UserSeeder extends Seeder
                 'password' => '123456',
                 'role' => 'kurir'
             ],
+            [
+                'name' => 'Indra',
+                'email' => 'customer@livhealth.com',
+                'password' => '123456',
+                'role' => 'customer'
+            ],
+            [
+                'name' => 'Agung',
+                'email' => 'agung@livhealth.com',
+                'password' => '123456',
+                'role' => 'customer'
+            ],
         ];
 
         foreach($users as $user){

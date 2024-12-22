@@ -17,6 +17,6 @@ class CashFlow extends Model
 
     public function user_finance()
     {
-        return $this->belongsTo(UserFinance::class, 'finance_id');
+        return $this->belongsToMany(UserFinance::class, 'finance_id');
     }
 }

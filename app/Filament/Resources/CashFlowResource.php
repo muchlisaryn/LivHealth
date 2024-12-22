@@ -38,7 +38,7 @@ class CashFlowResource extends Resource
                 Forms\Components\Select::make('type')
                     ->options(
                         [
-                            'income' => 'Income',
+                            'sponsor' => 'Sponsor',
                             'expense' => 'Expense'
                         ]
                     )

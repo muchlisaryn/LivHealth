@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {   
-        Schema::create('user_finances', function (Blueprint $table) {
+
+        Schema::create('transactions', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('programs_id');
             $table->unsignedBigInteger('user_id');
-            $table->string('bank_name');
-            $table->string('bank_account');
-            $table->string('bank_account_name');
+            $table->integer('total_price');
+            $table->enum('status' , ['Pending', 'Confirmed', 'Preparing', 'Delivered', 'Canceled'])->default('Pending');
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('programs_id')->references('id')->on('programs');
             $table->foreign('user_id')->references('id')->on('users');
         });
     }
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_finances');
+        Schema::dropIfExists('transactions');
     }
 };

@@ -12,18 +12,14 @@ class UserFinance extends Model
 
     protected $fillable = [
         'users_id',
-        'bank_name_id',
+        'bank_name',
         'bank_account',
         'bank_account_name',
     ];
 
-    public function users()
+    public function user()
     {
         return $this->belongsTo(User::class, 'users_id');  
     }
-
-    public function bank_name()
-    {
-        return $this->belongsTo(BankName::class, 'bank_name_id');
-    }
+    
 }
