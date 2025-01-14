@@ -28,4 +28,9 @@ class Transaction extends Model
     {
         return $this->hasOne(DeliveryStatus::class, 'transaction_id');
     }
+
+    public function cooking()
+    {
+        return $this->hasOne(OrderCooking::class, 'transaction_id');
+    }
 }

@@ -10,18 +10,12 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {   
-
-
-        Schema::create('transaction_payments', function (Blueprint $table) {
+    {
+        Schema::create('order_cookings', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('transaction_id');
-            $table->enum('status_payment', ['Pending',  'Paid' , 'Rejected' , 'Verified'])->default('Pending');
-            $table->longText('attachments')->nullable();
+            $table->enum('status', ['New', 'In Progress', 'Completed' , 'On Hold' , 'Ready for Pickup'])->default('New');
             $table->timestamps();
-            $table->softDeletes();
-
-            $table->foreign('transaction_id')->references('id')->on('transactions');
         });
     }
 
@@ -30,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transaction_payments');
+        Schema::dropIfExists('order_cookings');
     }
 };

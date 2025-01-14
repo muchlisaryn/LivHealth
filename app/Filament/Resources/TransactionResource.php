@@ -3,9 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TransactionResource\Pages;
-use App\Filament\Resources\TransactionResource\RelationManagers;
 use App\Models\Transaction;
-use App\Models\TransactionPayment;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -23,7 +21,7 @@ class TransactionResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationGroup = 'Finance';
+    protected static ?string $navigationGroup = 'Admin';
 
     public static function form(Form $form): Form
     {
@@ -46,7 +44,6 @@ class TransactionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->label('No Transaksi')
@@ -63,9 +60,10 @@ class TransactionResource extends Resource
                 Tables\Columns\TextColumn::make('status')->badge()->color(fn(string $state) : string => match($state) {
                     'Pending' => 'gray',
                     'Confirmed' => 'success',
-                    'Preparing' => 'info',
+                    'Cooking' => 'info',
                     'Delivered' => 'warning',
-                    'Canceled' => 'danger'
+                    'Canceled' => 'danger',
+                    'Payment Rejected' => 'danger'
                     })
                     ->alignCenter()
                     ->label('Status Pemesanan'),
@@ -103,6 +101,7 @@ class TransactionResource extends Resource
                 //     Notification::make()->success('Transaction Approved!')->body('Transaction has been approved successfully')->icon('heroicon-o-check')->send();
                 // })
                 // ->hidden(fn(Transaction $transaction) => $transaction->status === 'Canceled'),
+               
                 Action::make('reject')
                 ->button()
                 ->color('danger')
@@ -113,7 +112,7 @@ class TransactionResource extends Resource
                     ]);
                     Notification::make()->success('Transaction Approved!')->body('Transaction has been approved successfully')->icon('heroicon-o-check')->send();
                 })
-                ->hidden(fn(TransactionPayment $payment, Transaction $transaction) => $payment->status === 'Rejected' && ($transaction->status !== 'Pending' && $transaction->status !== 'Canceled')),
+                ->hidden(fn(Transaction $transaction) => $transaction->status != 'Pending' ),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

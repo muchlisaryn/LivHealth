@@ -14,12 +14,16 @@ class TransactionPaymentSeeder extends Seeder
     public function run(): void
     {
         $transactionsPayment = [];
+        
         $transactionIds = Transaction::pluck('id')->toArray();
+
+        $status = ['Pending',  'Paid' , 'Rejected' , 'Verified'];
 
         foreach($transactionIds as $transaction) {
             if(!empty($transactionIds)) {
                 $transactionsPayment[] = [
                     'transaction_id' => $transaction,
+                    'status_payment' => 'paid'
                 ];
             }
         }

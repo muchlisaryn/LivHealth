@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('programs_id');
             $table->unsignedBigInteger('user_id');
             $table->integer('total_price');
-            $table->enum('status' , ['Pending', 'Confirmed', 'Preparing', 'Delivered', 'Canceled'])->default('Pending');
+            $table->enum('status' , ['Pending', 'Payment Rejected' , 'Confirmed', 'Cooking', 'Delivered', 'Canceled'])->default('Pending');
             $table->timestamps();
             $table->softDeletes();
 

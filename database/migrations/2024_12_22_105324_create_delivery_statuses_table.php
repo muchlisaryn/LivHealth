@@ -21,7 +21,6 @@ return new class extends Migration
             $table->longText('attachments')->default(0);
             $table->timestamps();
             $table->softDeletes();
-
             $table->foreign('courier_id')->references('id')->on('users');
             $table->foreign('transaction_id')->references('id')->on('transactions');
         });

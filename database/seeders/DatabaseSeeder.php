@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             ProgramSeeder::class,
             TransactionSeeder::class,
             TransactionPaymentSeeder::class,
+            ShippingCostSeeder::class,
             DeliveryStatusSeeder::class
         ]);
         
