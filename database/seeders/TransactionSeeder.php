@@ -23,7 +23,8 @@ class TransactionSeeder extends Seeder
             $transactions[] = [
                 'programs_id' => Programs::inRandomOrder()->value('id'),
                 'user_id' => User::inRandomOrder()->value('id'),
-                'total_price' => rand(40000, 99999999),
+                'order_price' => rand(40000, 99999999),
+                'shipping_price' => rand(10000, 30000),
             ];
         }
  

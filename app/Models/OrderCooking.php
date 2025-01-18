@@ -8,6 +8,7 @@ class OrderCooking extends Model
 {
     protected $fillable = [
         'transaction_id',
+        'chef_id',
         'status',
     ];
 
@@ -15,5 +16,10 @@ class OrderCooking extends Model
     public function transaction()
     {
         return $this->belongsTo(Transaction::class, 'transaction_id');
+    }
+
+    public function chef()
+    {
+        return $this->belongsTo(OrderCooking::class, 'chef_id');
     }
 }

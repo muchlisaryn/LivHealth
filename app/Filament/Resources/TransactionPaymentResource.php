@@ -73,7 +73,7 @@ class TransactionPaymentResource extends Resource
 
                     if($transaction) {
                         $transaction->update([
-                            'status' => 'Confirmed'
+                            'status' => 'Verified Payment'
                         ]);
                         
                         $payment->update([
@@ -148,7 +148,7 @@ class TransactionPaymentResource extends Resource
                 SoftDeletingScope::class,
             ])
             ->whereHas('transaction', function(Builder $query) {
-                $query->where('status' , '!=' , 'Cancelled');
+                $query->where('status', 'Confirmed');
             });
     }
 }

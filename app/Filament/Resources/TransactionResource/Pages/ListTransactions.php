@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\TransactionResource\Pages;
 
 use App\Filament\Resources\TransactionResource;
-use Filament\Actions;
+
 use Filament\Resources\Pages\ListRecords;
 
 class ListTransactions extends ListRecords

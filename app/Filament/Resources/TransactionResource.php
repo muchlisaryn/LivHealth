@@ -53,13 +53,16 @@ class TransactionResource extends Resource
                     ->label('Customer')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('total_price')
+                Tables\Columns\TextColumn::make('sub_total')
                     ->label('Total Harga')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->prefix('Rp'),
                 Tables\Columns\TextColumn::make('status')->badge()->color(fn(string $state) : string => match($state) {
                     'Pending' => 'gray',
                     'Confirmed' => 'success',
+                    'Verified Payment' => 'success',
+                    'Order Completely Cooked' => 'success',
                     'Cooking' => 'info',
                     'Delivered' => 'warning',
                     'Canceled' => 'danger',
@@ -71,15 +74,6 @@ class TransactionResource extends Resource
                     ->label('Waktu')
                     ->dateTime()
                     ->sortable(),
-                 
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -90,36 +84,93 @@ class TransactionResource extends Resource
                 ])
             ])
             ->actions([
-                // Action::make('View')
-                // ->button()
-                // ->color('info')
-                // ->requiresConfirmation()
-                // ->action(function(Transaction $transaction) {
-                //     Transaction::find($transaction->id)->update([
-                //         'status' => 'Canceled'
-                //     ]);
-                //     Notification::make()->success('Transaction Approved!')->body('Transaction has been approved successfully')->icon('heroicon-o-check')->send();
-                // })
-                // ->hidden(fn(Transaction $transaction) => $transaction->status === 'Canceled'),
-               
+                Action::make('Confirmed')
+                ->button()
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading('Transaction')
+                ->modalContent(function(Transaction $transaction) {
+                    return view('components.confirmed-order' , [
+                        'status_payment' => $transaction->payment->status_payment,
+                        'programs_duration' => $transaction->programs->duration_days,
+                        'programs_name' => $transaction->programs->name,
+                        'order_total' => $transaction->order_price,
+                        'shipping_price' => $transaction->shipping_price,
+                        'sub_total' => $transaction->sub_total
+                    ]);
+                })
+                ->action(function(Transaction $transaction) {
+                    Transaction::find($transaction->id)->update([
+                        'status' => 'Confirmed',
+                    ]);
+                    Notification::make()->success('Transaction Approved!')->body('Payment has been approved successfully')->icon('heroicon-o-check')->send();
+                })
+                ->hidden(fn(Transaction $transaction) => $transaction->status != 'Pending' ),
+                
+                Action::make('Reactivate')
+                ->button()
+                ->color('success')
+                ->requiresConfirmation()
+                ->action(function(Transaction $transaction) {
+                    Transaction::find($transaction->id)->update([
+                        'status' => 'Pending',
+                        'canceled_reason' => null
+                    ]);
+                    Notification::make()->success('Order Reactivated Successfully!')->body('Order Reactivated Successfully!')->icon('heroicon-o-x-circle')->send();
+                })
+                ->hidden(fn(Transaction $transaction) => $transaction->status != 'Canceled' ),
+
+                Action::make('Reason')
+                ->button()
+                ->color('info')
+                ->requiresConfirmation()
+                ->modalHeading('Cancellation Reason')
+                ->modalSubheading('the reason for cancellation of this transaction.')
+                ->modalContent(function(Transaction $transaction) {
+                    return view('components.cancellation-reason' , [
+                        'reason' => $transaction->canceled_reason ?? 'No reason provided'
+                    ]);
+                })
+                ->form(null)
+                ->modalActions([
+                    Action::make('Cancel')
+                    ->button()
+                    ->color('secondary')
+                    ->action(function() {
+                        // Cancel logic: close modal without making changes
+                        return redirect()->back();  // This will close the modal
+                    }),
+                ])
+                ->hidden(fn(Transaction $transaction) => $transaction->status != 'Canceled'),
+
                 Action::make('reject')
                 ->button()
                 ->color('danger')
                 ->requiresConfirmation()
-                ->action(function(Transaction $transaction) {
+                ->form([
+                    Forms\Components\Textarea::make('canceled_reason')
+                    ->label('Reason for Cancellation')
+                    ->required()
+                    ->placeholder('Provide the reason for canceling this transaction.'),
+                ])
+                ->action(function(Transaction $transaction, array $data) {
+                
+
                     Transaction::find($transaction->id)->update([
-                        'status' => 'Canceled'
+                        'status' => 'Canceled',
+                        'canceled_reason' => $data['canceled_reason']
                     ]);
-                    Notification::make()->success('Transaction Approved!')->body('Transaction has been approved successfully')->icon('heroicon-o-check')->send();
+                    Notification::make()->success('Transaction Canceled!')->body('Transaction has been canceled successfully')->icon('heroicon-o-x-circle')->send();
                 })
                 ->hidden(fn(Transaction $transaction) => $transaction->status != 'Pending' ),
             ])
+
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                //     Tables\Actions\ForceDeleteBulkAction::make(),
+                //     Tables\Actions\RestoreBulkAction::make(),
+                // ]),
             ]);
     }
 
@@ -134,8 +185,8 @@ class TransactionResource extends Resource
     {
         return [
             'index' => Pages\ListTransactions::route('/'),
-            'create' => Pages\CreateTransaction::route('/create'),
-            'edit' => Pages\EditTransaction::route('/{record}/edit'),
+            // 'create' => Pages\CreateTransaction::route('/create'),
+            // 'edit' => Pages\EditTransaction::route('/{record}/edit'),
         ];
     }
 

@@ -7,8 +7,10 @@ use App\Filament\Resources\OrderCookingResource\RelationManagers;
 use App\Models\OrderCooking;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -55,7 +57,40 @@ class OrderCookingResource extends Resource
                 // Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Action::make('Accept')
+                ->button()
+                ->color('success')
+                ->requiresConfirmation()
+                ->action(function(OrderCooking $cooking) {
+                    $transaction = $cooking->transaction;
+
+                    if($transaction){
+                        $transaction->update([
+                            'status' => 'Cooking'
+                        ]);
+
+                        $cooking->update([
+                            'status' => 'In Progress',
+                            'received_by_chef' => auth()->id()
+                        ]);
+                    }
+
+                    Notification::make()->success('order Processed!')->body('The order has been processed successfully.')->icon('heroicon-o-check')->send();
+                })
+                ->hidden(fn(OrderCooking $cooking) => $cooking->status != 'New'),
+
+                Action::make('Completed')
+                ->button()
+                ->color('success')
+                ->requiresConfirmation()
+                ->action(function(OrderCooking $cooking) {
+                    $cooking->update([
+                        'status' => 'Ready for Pickup',
+                    ]);
+
+                    Notification::make()->success('order Processed!')->body('The order has been processed successfully.')->icon('heroicon-o-check')->send();
+                })
+                ->hidden(fn(OrderCooking $cooking) => $cooking->status != 'In Progress')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

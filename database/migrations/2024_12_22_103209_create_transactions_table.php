@@ -16,11 +16,13 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('programs_id');
             $table->unsignedBigInteger('user_id');
-            $table->integer('total_price');
-            $table->enum('status' , ['Pending', 'Payment Rejected' , 'Confirmed', 'Cooking', 'Delivered', 'Canceled'])->default('Pending');
+            $table->integer('order_price');
+            $table->integer('shipping_price');
+            $table->integer('sub_total');
+            $table->enum('status' , ['Pending', 'Confirmed' , 'Payment Rejected' , 'Verified Payment', 'Cooking' , 'Order Completely Cooked',  'Delivered', 'Canceled'])->default('Pending');
+            $table->longText('canceled_reason')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
             $table->foreign('programs_id')->references('id')->on('programs');
             $table->foreign('user_id')->references('id')->on('users');
         });

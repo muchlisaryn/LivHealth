@@ -10,15 +10,12 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {   
-        
-        Schema::create('delivery_statuses', function (Blueprint $table) {
+    {
+        Schema::create('order_deliveries', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('transaction_id');
-            $table->unsignedBigInteger('courier_id')->nullable();
-            $table->enum('status_delivery', ['Pending', 'On The Way', 'Delivered', 'Returned'])->default('Pending');
-            $table->text('description')->nullable();
-            $table->longText('attachments')->default(0);
+            $table->unsignedBigInteger('courier_id');
+            $table->enum('status_delivery', ['Pick Up Order', 'On The Way' , 'Delivered']);
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('courier_id')->references('id')->on('users');
@@ -31,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('delivery_statuses');
+        Schema::dropIfExists('order_deliveries');
     }
 };

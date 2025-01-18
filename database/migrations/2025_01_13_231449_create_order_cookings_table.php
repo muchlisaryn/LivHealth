@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('order_cookings', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('transaction_id');
+            $table->unsignedBigInteger('chef_id')->nullable();
             $table->enum('status', ['New', 'In Progress', 'Completed' , 'On Hold' , 'Ready for Pickup'])->default('New');
+
+            $table->foreign('chef_id')->references('id')->on('users');
             $table->timestamps();
         });
     }
