@@ -132,15 +132,7 @@ class TransactionResource extends Resource
                     ]);
                 })
                 ->form(null)
-                ->modalActions([
-                    Action::make('Cancel')
-                    ->button()
-                    ->color('secondary')
-                    ->action(function() {
-                        // Cancel logic: close modal without making changes
-                        return redirect()->back();  // This will close the modal
-                    }),
-                ])
+                ->modalSubmitAction(false)
                 ->hidden(fn(Transaction $transaction) => $transaction->status != 'Canceled'),
 
                 Action::make('reject')
@@ -154,8 +146,6 @@ class TransactionResource extends Resource
                     ->placeholder('Provide the reason for canceling this transaction.'),
                 ])
                 ->action(function(Transaction $transaction, array $data) {
-                
-
                     Transaction::find($transaction->id)->update([
                         'status' => 'Canceled',
                         'canceled_reason' => $data['canceled_reason']
@@ -163,6 +153,21 @@ class TransactionResource extends Resource
                     Notification::make()->success('Transaction Canceled!')->body('Transaction has been canceled successfully')->icon('heroicon-o-x-circle')->send();
                 })
                 ->hidden(fn(Transaction $transaction) => $transaction->status != 'Pending' ),
+
+                Action::make('Reason')
+                ->button()
+                ->color('info')
+                ->requiresConfirmation()
+                ->modalHeading('Cancellation Reason')
+                ->modalSubheading('the reason for cancellation of this transaction.')
+                ->modalContent(function(Transaction $transaction) {
+                    return view('components.cancellation-reason' , [
+                        'reason' => $transaction->canceled_reason ?? 'No reason provided'
+                    ]);
+                })
+                ->form(null)
+                ->modalSubmitAction(false)
+                ->hidden(fn(Transaction $transaction) => $transaction->status != 'Payment Rejected'),
             ])
 
             ->bulkActions([

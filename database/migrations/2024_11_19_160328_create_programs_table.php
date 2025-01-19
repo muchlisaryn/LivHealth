@@ -13,15 +13,13 @@ return new class extends Migration
     {   
         Schema::create('programs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('menu_id');
+            $table->json('menu_id');
             $table->string('name')->unique();
             $table->text('description');
             $table->integer('price');
             $table->integer('duration_days');
             $table->timestamps();
             $table->softDeletes();
-
-            $table->foreign('menu_id')->references('id')->on('menuses');
         });
     }
 

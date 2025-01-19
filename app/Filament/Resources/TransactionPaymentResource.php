@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TransactionPaymentResource\Pages;
 use App\Models\OrderCooking;
+use App\Models\ProgramPlans;
 use App\Models\Transaction;
 use App\Models\TransactionPayment;
 use Filament\Forms;
@@ -45,11 +46,17 @@ class TransactionPaymentResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('transaction_id')
                     ->numeric()
+                    ->prefix('#')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('transaction.user.name')
                 ->label('Customer'),
-                Tables\Columns\TextColumn::make('transaction.total_price')
-                ->label('Total Payment'),
+                Tables\Columns\TextColumn::make('created_at')
+                ->label('Waktu Pembayaran'),
+                Tables\Columns\TextColumn::make('transaction.sub_total')
+                ->label('Total Harga')
+                ->numeric()
+                ->sortable()
+                ->prefix('Rp '),
                 Tables\Columns\TextColumn::make('status_payment')
                 ->badge()->color(fn(string $state) : string => match($state) {
                     'Pending' => 'gray',
@@ -63,65 +70,112 @@ class TransactionPaymentResource extends Resource
                
             ])
             ->actions([
+                Action::make('Reason')
+                ->button()
+                ->color('info')
+                ->requiresConfirmation()
+                ->modalHeading('Reject Reason')
+                ->modalSubheading('the reason for cancellation of this transaction.')
+                ->modalContent(function(TransactionPayment $payment) {
+                    return view('components.cancellation-reason' , [
+                        'reason' => $payment->transaction->canceled_reason ?? 'No reason provided'
+                    ]);
+                })
+                ->form(null)
+                ->modalSubmitAction(false)
+                ->hidden(fn(TransactionPayment $payment) => $payment->transaction->status != 'Payment Rejected'),
+
                 Action::make('Confirmed')
                 ->button()
                 ->color('success')
-                ->requiresConfirmation()
-                ->action(function(TransactionPayment $payment) {
-
-                    $transaction = $payment->transaction;
-
-                    if($transaction) {
-                        $transaction->update([
-                            'status' => 'Verified Payment'
-                        ]);
-                        
-                        $payment->update([
-                            'status_payment' => 'Verified'
-                        ]);
-
-                        OrderCooking::create([
-                            'transaction_id' => $transaction->id,
-                        ]);
-                    }
+                // ->requiresConfirmation()
+                ->modalHeading('Confirmation Payment')
+                ->modalContent(function(TransactionPayment $payment){
+                    return view('components.confirmed-payment', [
+                        'status_payment' => $payment->status_payment,
+                        'date_payment' => $payment->created_at,
+                        'programs_duration' => $payment->transaction->programs->duration_days,
+                        'programs_name' => $payment->transaction->programs->name,
+                        'order_total' => $payment->transaction->order_price,
+                        'shipping_price' => $payment->transaction->shipping_price,
+                        'sub_total' => $payment->transaction->sub_total
+                    ]);
+                })
+                ->modalSubmitAction(false)
+                
+                ->extraModalFooterActions([
+                    Action::make('Approved')
+                    ->button()
+                    ->color('success')
+                    ->requiresConfirmation()
                     
-                    Notification::make()->success('Transaction Approved!')->body('Payment has been approved successfully')->icon('heroicon-o-check')->send();
-                })
-                ->hidden(fn(TransactionPayment $payment) => $payment->status_payment != 'Paid'),
+                    ->action(function(TransactionPayment $payment) {
 
-                Action::make('Reject')
-                ->button()
-                ->color('danger')
-                ->requiresConfirmation()
-                ->action(function(TransactionPayment $payment) {
-
-                    $transaction = $payment->transaction;
-
-                    if($transaction) {
-                        $transaction->update([
-                            'status' => 'Payment Rejected'
-                        ]);
-                        
-                        $updatedPayment = $payment->update([
-                            'status_payment' => 'Rejected'
-                        ]);
-
-                        if($updatedPayment){
-                            Log::error('Failed to update payment status', ['payment_id' => $payment->id]);
+                        $transaction = $payment->transaction;
+    
+                        if($transaction) {
+                            $transaction->update([
+                                'status' => 'Verified Payment'
+                            ]);
+                            
+                            $payment->update([
+                                'status_payment' => 'Verified'
+                            ]);
+    
+                            ProgramPlans::create([
+                                'transaction_id' => $transaction->id,
+                            ]);
                         }
-                    }
+                        
+                        Notification::make()->success('Transaction Approved!')->body('Payment has been approved successfully')->icon('heroicon-o-check')->send();
+                    }),
 
-                    Notification::make()->success('Transaction Approved!')->body('Payment has been rejected')->icon('heroicon-o-check')->send();
-                })
+                    Action::make('Reject')
+                    ->button()
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->form([
+                        Forms\Components\Textarea::make('canceled_reason')
+                        ->label('Reason for Cancellation')
+                        ->required()
+                        ->placeholder('Provide the reason for canceling this transaction.'),
+                    ])
+                    ->action(function(TransactionPayment $payment, array $data) {
+
+                        $transaction = $payment->transaction;
+
+                        if($transaction) {
+                            $transaction->update([
+                                'status' => 'Payment Rejected',
+                                'canceled_reason' => $data['canceled_reason']
+                            ]);
+                            
+                            $updatedPayment = $payment->update([
+                                'status_payment' => 'Rejected'
+                            ]);
+
+                            if($updatedPayment){
+                                Log::error('Failed to update payment status', ['payment_id' => $payment->id]);
+                            }
+                        }
+
+                        Notification::make()->success('Transaction Approved!')->body('Payment has been rejected')->icon('heroicon-o-check')->send();
+                    })
+                ])
+                ->modalWidth('lg') // Optional: Adjust modal width
+                
                 ->hidden(fn(TransactionPayment $payment) => $payment->status_payment != 'Paid'),
+
+                
+                
                 
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                //     Tables\Actions\ForceDeleteBulkAction::make(),
+                //     Tables\Actions\RestoreBulkAction::make(),
+                // ]),
             ]);
     }
 
@@ -136,8 +190,8 @@ class TransactionPaymentResource extends Resource
     {
         return [
             'index' => Pages\ListTransactionPayments::route('/'),
-            'create' => Pages\CreateTransactionPayment::route('/create'),
-            'edit' => Pages\EditTransactionPayment::route('/{record}/edit'),
+            // 'create' => Pages\CreateTransactionPayment::route('/create'),
+            // 'edit' => Pages\EditTransactionPayment::route('/{record}/edit'),
         ];
     }
 
@@ -148,7 +202,7 @@ class TransactionPaymentResource extends Resource
                 SoftDeletingScope::class,
             ])
             ->whereHas('transaction', function(Builder $query) {
-                $query->where('status', 'Confirmed');
+                $query->whereIn('status', ['Confirmed', 'Payment Rejected', 'Verified Payment']);
             });
     }
 }

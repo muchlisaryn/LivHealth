@@ -37,8 +37,13 @@ class ProgramSeeder extends Seeder
         $menuIds = Menus::pluck('id')->toArray();
         
         foreach($programs as $program) {
+
+            if(is_object($program)) {
+                $program = (array) $program;
+            }
+
             if(!empty($menuIds)) {
-                $program['menu_id'] =  $menuIds[array_rand($menuIds)];
+                $program['menu_id'] =  array_slice($menuIds, 0, rand(1, count($menuIds)));
                 $program['price'] = rand(40000, 99999999);
                 $program['duration_days'] = rand(3, 24);
             }

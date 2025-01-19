@@ -7,15 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 class OrderCooking extends Model
 {
     protected $fillable = [
-        'transaction_id',
+        'user_program_id',
+        'menu_id',
         'chef_id',
         'status',
     ];
 
 
-    public function transaction()
+    public function user_program()
     {
-        return $this->belongsTo(Transaction::class, 'transaction_id');
+        return $this->belongsTo(ProgramPlans::class, 'user_program_id');
+    }
+
+    public function menu()
+    {
+        return $this->belongsTo(Menus::class, 'menu_id');
     }
 
     public function chef()

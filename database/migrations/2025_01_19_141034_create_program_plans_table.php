@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_cookings', function (Blueprint $table) {
+        Schema::create('program_plans', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('transaction_id');
-            $table->unsignedBigInteger('chef_id')->nullable();
-            $table->enum('status', ['New', 'In Progress', 'Completed' , 'On Hold' , 'Ready for Pickup'])->default('New');
-
-            $table->foreign('chef_id')->references('id')->on('users');
+            $table->enum('status', ['Pending', 'In Progress', 'Completed', 'Canceled'])->default('Pending');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->foreign('transaction_id')->references('id')->on('transactions');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_cookings');
+        Schema::dropIfExists('program_plans');
     }
 };

@@ -1,3 +1,3 @@
 <div>
-    <p>{{ $reason }}</p>
+    <p class="text-center">{{ $reason }}</p>
 </div>
