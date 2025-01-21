@@ -142,7 +142,7 @@ class ProgramPlansResource extends Resource
                     ]);
 
                     $plans->update([
-                        $plans->remaining_duration =  $plans->remaining_duration - 1
+                        'remaining_duration' =>  $plans->remaining_duration - 1
                     ]);
 
 

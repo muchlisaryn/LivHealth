@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\OrderCookingResource\Pages;
 use App\Filament\Resources\OrderCookingResource\RelationManagers;
+use App\Models\Menus;
 use App\Models\OrderCooking;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -39,15 +40,15 @@ class OrderCookingResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Waktu Order')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('user_program.transaction.id')
                     ->label('No Transaksi')
                     ->prefix('#')
                     ->numeric()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Waktu Order')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('user_program.transaction.user.name')
                     ->searchable()
                     ->label('Customer'),
@@ -63,24 +64,56 @@ class OrderCookingResource extends Resource
                 // Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Action::make('Accept')
+                Action::make('Process')
                 ->button()
-                ->color('success')
+                ->color('info')
                 ->requiresConfirmation()
+                ->modalHeading('Process Order')
+                ->modalContent(function(OrderCooking $order) {
+
+                    $orders = [];
+
+                    foreach($order->menu_id as $menu){
+                        $menu_order = Menus::find($menu);
+                        if($menu_order) {
+                            $orders[] = $menu_order->name;
+                        }
+                    }
+
+                    return view('components.confirmed-order-cooking' , [
+                        'no_transaksi' => $order->user_program->transaction->id,
+                        'nama_customer' => $order->user_program->transaction->user->name,
+                        'orders' => $orders
+                    ]);
+                })
                 ->action(function(OrderCooking $cooking) {
-                    $transaction = $cooking->transaction;
+                   try {
+                    $transaction = $cooking->user_program->transaction;
 
                     if($transaction){
-                        $transaction->update([
+                        $update_transaction = $transaction->update([
                             'status' => 'Cooking'
                         ]);
 
-                        $cooking->update([
+                        if(!$update_transaction){
+                            Notification::make()->success('Error!')->body('Tidak dapat mengupdate transaksi')->icon('heroicon-o-check')->send();
+                        }
+
+                        $update_cooking_status = $cooking->update([
                             'status' => 'In Progress',
                         ]);
-                    }
 
-                    Notification::make()->success('order Processed!')->body('The order has been processed successfully.')->icon('heroicon-o-check')->send();
+                        if(!$update_cooking_status) {
+                            Notification::make()->success('Error!')->body('Gagal Update Pemesanan')->icon('heroicon-o-check')->send();
+                        }
+
+                        Notification::make()->success('order Processed!')->body('The order has been processed successfully.')->icon('heroicon-o-check')->send();
+                    }else {
+                        Notification::make()->success('Error!')->body('Transaksi Tidak Ditemukan')->icon('heroicon-o-check')->send();
+                    }
+                   } catch (\Exception $e) {
+                    Notification::make()->danger()->body('Error: ' . $e->getMessage())->send();
+                   }
                 })
                 ->hidden(fn(OrderCooking $cooking) => $cooking->status != 'New'),
 
@@ -88,6 +121,23 @@ class OrderCookingResource extends Resource
                 ->button()
                 ->color('success')
                 ->requiresConfirmation()
+                ->modalContent(function(OrderCooking $order) {
+
+                    $orders = [];
+
+                    foreach($order->menu_id as $menu){
+                        $menu_order = Menus::find($menu);
+                        if($menu_order) {
+                            $orders[] = $menu_order->name;
+                        }
+                    }
+
+                    return view('components.confirmed-order-cooking' , [
+                        'no_transaksi' => $order->user_program->transaction->id,
+                        'nama_customer' => $order->user_program->transaction->user->name,
+                        'orders' => $orders
+                    ]);
+                })
                 ->action(function(OrderCooking $cooking) {
                     $cooking->update([
                         'status' => 'Ready for Pickup',

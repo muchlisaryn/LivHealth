@@ -93,9 +93,9 @@ class WeeklyScheduleResource extends Resource
                 ->button()
                 ->color('danger')
                 ->requiresConfirmation()
-                ->action(function (WeeklySchedule $schedule) {
+                ->action(function(WeeklySchedule $schedule) {
                    try {
-                
+
                     $schedule->update([
                         'status' => 'Not Active'
                     ]);
@@ -106,7 +106,7 @@ class WeeklyScheduleResource extends Resource
                    }
                    
                 })
-                // ->hidden(fn (WeeklySchedule $schedule) => $schedule->status != 'Active')
+                ->hidden(fn (WeeklySchedule $schedule) => $schedule->status != 'Active')
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
