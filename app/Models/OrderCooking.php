@@ -11,7 +11,13 @@ class OrderCooking extends Model
         'menu_id',
         'chef_id',
         'status',
+        'created_at'
     ];
+
+    protected $casts = [
+       'menu_id' => 'array',
+    ];
+
 
 
     public function user_program()

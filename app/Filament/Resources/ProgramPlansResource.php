@@ -4,10 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProgramPlansResource\Pages;
 use App\Models\Menus;
+use App\Models\OrderCooking;
 use Filament\Notifications\Notification;
 use App\Models\ProgramPlans;
 use App\Models\Programs;
 use App\Models\Transaction;
+use App\Models\weeklySchedule;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -49,10 +51,14 @@ class ProgramPlansResource extends Resource
                     ->prefix("#")
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('transaction.user.name')
+                    ->label("Name Client")
+                    ->numeric()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('transaction.programs.name')
                     ->label("Program")
                     ->numeric()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('transaction.programs.duration_days')
                     ->label("Durasi")
                     ->numeric()
@@ -108,28 +114,42 @@ class ProgramPlansResource extends Resource
                     Forms\Components\Select::make('menu_id')
                         ->label('Menu')
                         ->required()
-                        // ->searchable()
-                        ->options(function ($get) {
-                            $transactionId = $get('transaction_id');
+                        ->searchable()
+                        ->multiple()
+                        ->options(function () {
+                            $schedules = weeklySchedule::whereDate('start_date', '<=', Carbon::now())
+                            ->whereDate('end_date', '>=', Carbon::now())
+                            ->Where('status', 'Active')
+                            ->get();
 
-                            if(!$transactionId) {
-                                return[];
+                            $options = [];
+
+                            foreach ($schedules as $schedule) {
+                                foreach ($schedule->menu_id as $menuId) {
+                                    $menu = Menus::find($menuId);
+                                    if($menu){
+                                        $options[$menu->id] = $menu->name;
+                                    }
+                                }
                             }
-
-                            $transaction = Transaction::find($transactionId);
-
-                            if(!$transaction || !$transaction->program) {
-                                return [];
-                            }
-
-                            return Menus::whereIn('id', $transaction->program->menu_id)
-                            ->pluck('name', 'id');
-
-                        })
-                      
+                            return $options;
+                        }) 
                 ])
+                ->action(function(ProgramPlans $plans, array $data) {
+                    OrderCooking::create([
+                        'user_program_id' => $plans->id,
+                        'menu_id' => $data['menu_id']
+                    ]);
+
+                    $plans->update([
+                        $plans->remaining_duration =  $plans->remaining_duration - 1
+                    ]);
+
+
+                })
                 ->hidden(fn(ProgramPlans $program) => $program->status != 'In Progress')
             ])
+            ->defaultSort('status', 'desc')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                  

@@ -13,7 +13,6 @@ return new class extends Migration
     {   
         Schema::create('programs', function (Blueprint $table) {
             $table->id();
-            $table->json('menu_id');
             $table->string('name')->unique();
             $table->text('description');
             $table->integer('price');

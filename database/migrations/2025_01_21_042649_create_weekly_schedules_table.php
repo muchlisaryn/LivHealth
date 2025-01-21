@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('program_plans', function (Blueprint $table) {
+        Schema::create('weekly_schedules', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('transaction_id');
-            $table->enum('status', ['Pending', 'In Progress', 'Completed', 'Canceled'])->default('Pending');
-            $table->integer('remaining_duration');
+            $table->json('menu_id');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->foreign('transaction_id')->references('id')->on('transactions');
+            $table->enum('status', ['Active', 'Not Active']);
             $table->timestamps();
         });
     }
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('program_plans');
+        Schema::dropIfExists('weekly_schedules');
     }
 };

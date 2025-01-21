@@ -48,11 +48,11 @@ class TransactionResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->label('No Transaksi')
                     ->numeric()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Customer')
                     ->numeric()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('sub_total')
                     ->label('Total Harga')
                     ->numeric()
@@ -154,22 +154,21 @@ class TransactionResource extends Resource
                 })
                 ->hidden(fn(Transaction $transaction) => $transaction->status != 'Pending' ),
 
-                Action::make('Reason')
+                Action::make('Reason-cancellation')
+                ->label('Reason')
                 ->button()
                 ->color('info')
                 ->requiresConfirmation()
                 ->modalHeading('Cancellation Reason')
-                ->modalSubheading('the reason for cancellation of this transaction.')
                 ->modalContent(function(Transaction $transaction) {
                     return view('components.cancellation-reason' , [
                         'reason' => $transaction->canceled_reason ?? 'No reason provided'
                     ]);
                 })
-                ->form(null)
                 ->modalSubmitAction(false)
                 ->hidden(fn(Transaction $transaction) => $transaction->status != 'Payment Rejected'),
             ])
-
+            ->defaultSort('status', 'asc')
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),

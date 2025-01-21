@@ -39,11 +39,17 @@ class OrderCookingResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('transaction.id')
-                    ->label('No Transaction')
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Waktu Order')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('transaction.user.name')
+                Tables\Columns\TextColumn::make('user_program.transaction.id')
+                    ->label('No Transaksi')
+                    ->prefix('#')
+                    ->numeric()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('user_program.transaction.user.name')
+                    ->searchable()
                     ->label('Customer'),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()->color(fn(string $state) : string => match($state) {
@@ -71,7 +77,6 @@ class OrderCookingResource extends Resource
 
                         $cooking->update([
                             'status' => 'In Progress',
-                            'received_by_chef' => auth()->id()
                         ]);
                     }
 
@@ -93,11 +98,7 @@ class OrderCookingResource extends Resource
                 ->hidden(fn(OrderCooking $cooking) => $cooking->status != 'In Progress')
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                ]),
+               
             ]);
     }
 

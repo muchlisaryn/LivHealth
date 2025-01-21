@@ -44,17 +44,7 @@ class ProgramsResource extends Resource
                 Forms\Components\TextInput::make('duration_days')
                     ->required()
                     ->numeric(),
-                Forms\Components\Select::make('menu_id')
-                    ->required()
-                    ->label('menu')
-                    ->multiple()
-                    ->searchable()
-                    ->options(
-                        Menus::query()
-                        ->pluck('name', 'id')
-                        ->toArray()
-                    )
-                    ->columnSpanFull(),
+                
             ]);
     }
 

@@ -47,9 +47,10 @@ class TransactionPaymentResource extends Resource
                 Tables\Columns\TextColumn::make('transaction_id')
                     ->numeric()
                     ->prefix('#')
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('transaction.user.name')
-                ->label('Customer'),
+                ->label('Customer')
+                ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                 ->label('Waktu Pembayaran'),
                 Tables\Columns\TextColumn::make('transaction.sub_total')
@@ -128,7 +129,8 @@ class TransactionPaymentResource extends Resource
                         }
                         
                         Notification::make()->success('Transaction Approved!')->body('Payment has been approved successfully')->icon('heroicon-o-check')->send();
-                    }),
+
+                    })->cancelParentActions('Confirmed'),
 
                     Action::make('Reject')
                     ->button()
@@ -160,7 +162,7 @@ class TransactionPaymentResource extends Resource
                         }
 
                         Notification::make()->success('Transaction Approved!')->body('Payment has been rejected')->icon('heroicon-o-check')->send();
-                    })
+                    })->cancelParentActions('Confirmed')
                 ])
                 ->modalWidth('lg') // Optional: Adjust modal width
                 
@@ -170,6 +172,7 @@ class TransactionPaymentResource extends Resource
                 
                 
             ])
+            ->defaultSort('status_payment', 'asc')
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
