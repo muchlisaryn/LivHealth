@@ -3,11 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\WeeklyScheduleResource\Pages;
-use Filament\Notifications\Notification;
+use App\Models\Categories;
 use App\Models\Menus;
+use Filament\Notifications\Notification;
+
 use App\Models\WeeklySchedule;
-use Carbon\Carbon;
-use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -18,7 +19,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class WeeklyScheduleResource extends Resource
 {
-    protected static ?string $model = WeeklySchedule::class;
+    protected static ?string $model = Categories::class;
+
+    protected static ?string $navigationLabel = 'Weekly Schedules';
+
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -27,86 +31,144 @@ class WeeklyScheduleResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-               
-                Forms\Components\DatePicker::make('start_date')
-                ->minDate(now()->startOfDay())
-                ->required()
-                ->reactive(),
-                Forms\Components\DatePicker::make('end_date')
-                ->reactive() // Re-render the component when the value of start_date changes
-                ->disabled(fn ($get) => !$get('start_date')) // Disable end_date if start_date is not selected
-                ->minDate(fn ($get) => $get('start_date') ? Carbon::parse($get('start_date'))->addDay() : null) // Set minimum date for end_date to be +1 day after start_date
-                ->required()
-                ->afterStateUpdated(function (callable $set, $state, $get) {
-                    if (!$get('start_date')) {
-                        $set(null); // Clear end_date when start_date is not selected
-                    }
-                }),
-                Forms\Components\Select::make('status')
-                ->options(
-                        [
-                            'Active' => 'Active',
-                            'Non Active' => 'Non Active'
-                        ]
-                    )
-                ->columnSpanFull()
-                ->default('Active')
-                ->required(),
-                Forms\Components\Select::make('menu_id')
-                    ->label('menu')
-                    ->multiple()
-                    ->searchable()
-                    ->required()
-                    ->options(
-                        Menus::query()
-                        ->pluck('name', 'id')
-                        ->toArray()
-                    )
-                    ->columnSpanFull(),
+            ->schema([ 
+                
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('start_date')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('end_date')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('status')->badge()->color(fn(string $state) : string => match($state) {
-                    'Active' => 'success',
-                    'Not Active' => 'danger'
-                })
+        ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Nama Category')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('schedule.menu')
+                    ->label('menu')
+                    ->getStateUsing(function ($record) {
+                        $menuIds = WeeklySchedule::where('category_id', $record->id)
+                        ->pluck('menu_id') // Ambil menu_id yang terkait dengan category_id
+                        ->flatten() // Pastikan array dalam bentuk tunggal
+                        ->unique(); // Hanya mengambil menu_id yang unik
+
+                        // Ambil nama-nama menu berdasarkan menu_id yang ditemukan
+                        $menus = Menus::whereIn('id', $menuIds)
+                                    ->pluck('name')
+                                    ->toArray();
+
+                        // Gabungkan nama-nama menu menjadi satu string yang dipisahkan dengan koma
+                        return implode(', ', $menus);
+                    })
+                    ->searchable(),
             ])
             ->filters([
                 // Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                ->button(),
+                // Tables\Actions\EditAction::make()
+                // ->button(),
 
-                Action::make('Set Inactive')
+                Action::make('Edit Menu')
                 ->button()
-                ->color('danger')
+                ->color('warning')
                 ->requiresConfirmation()
-                ->action(function(WeeklySchedule $schedule) {
-                   try {
+                ->form([
+                    Select::make('menu_id')
+                    ->label('Menu')
+                    ->required()
+                    ->searchable()
+                    ->multiple()
+                    ->options(function($record) {
+                        // Fetch menus based on category_id
+                        $category_id = (string)$record->id;
 
-                    $schedule->update([
-                        'status' => 'Not Active'
-                    ]);
+                        $menus = Menus::whereJsonContains('category_id', $category_id)->get();
+                       
+                        if ($menus->isEmpty()) {
+                            return []; 
+                        }
+                        
+                        return $menus->pluck('name', 'id')->toArray();
+                    })
+                    ->default(function($record) {
+                        $result = WeeklySchedule::where('category_id' , $record->id)->first();
+                        
+                        if ($result && $result->menu_id) {
+                            // Pastikan menu_id adalah array, bisa menggunakan json_decode jika data dalam format JSON
+                            return is_array($result->menu_id) ? $result->menu_id : json_decode($result->menu_id, true);
+                        }
+        
+                        return [];  // Kembalikan array kosong jika tidak ada menu_id
+                    })
+                ])
+                ->action(function(Categories $category, array $data) {
+                    try {
+                        $schedule = $category->schedule;
 
-                    Notification::make()->success('Schedule Deactivated')->body('The schedule has been successfully set to "Not Active".')->icon('heroicon-o-x-circle')->send();
-                   } catch (\Exception $e){
-                    Notification::make()->danger()->body('Error: ' . $e->getMessage())->send();
-                   }
-                   
+                        $schedule->update([
+                            'menu_id' => $data['menu_id']
+                        ]);
+                    }catch (\Exception $e){
+                        Notification::make()->danger()->body('Error: ' . $e->getMessage())->send();
+                    }
                 })
-                ->hidden(fn (WeeklySchedule $schedule) => $schedule->status != 'Active')
+                ->hidden(function($record) {
+                    $findWeeklySchedules = WeeklySchedule::where('id' , $record->id)->exists();
+                  
+                    if($findWeeklySchedules){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }),
+
+                Action::make('Pilih Menu')
+                ->button()
+                ->color('success')
+                ->requiresConfirmation()
+                ->form([
+                    Select::make('menu_id')
+                    ->label('Menu')
+                    ->required()
+                    ->searchable()
+                    ->multiple()
+                    ->options(function($record) {
+                        // Fetch menus based on category_id
+                        $category_id = (string)$record->id;
+
+                        $menus = Menus::whereJsonContains('category_id', $category_id)->get();
+                       
+                        if ($menus->isEmpty()) {
+                            return []; 
+                        }
+                        
+                        return $menus->pluck('name', 'id')->toArray();
+                    })
+                    ->rules('max:2') 
+                    ->helperText('Pilih maksimal 2 menu')
+                ])
+                ->action(function($record ,WeeklySchedule $schedule, array $data) {
+                    try {
+                        $schedule->create([
+                            'category_id' => $record->id,
+                            'menu_id' => $data['menu_id']
+                        ]);
+                    }catch (\Exception $e){
+                        Notification::make()->danger()->body('Error: ' . $e->getMessage())->send();
+                    }
+                })
+                ->hidden(function($record) {
+                    $findWeeklySchedules = WeeklySchedule::where('id' , $record->id)->exists();
+                  
+                    if($findWeeklySchedules){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                })
+                
+
+                
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
@@ -128,8 +190,8 @@ class WeeklyScheduleResource extends Resource
     {
         return [
             'index' => Pages\ListWeeklySchedules::route('/'),
-            'create' => Pages\CreateWeeklySchedule::route('/create'),
-            'edit' => Pages\EditWeeklySchedule::route('/{record}/edit'),
+            // 'create' => Pages\CreateWeeklySchedule::route('/create'),
+            // 'edit' => Pages\EditWeeklySchedule::route('/{record}/edit'),
         ];
     }
 

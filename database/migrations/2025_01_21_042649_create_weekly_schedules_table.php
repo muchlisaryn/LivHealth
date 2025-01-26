@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('weekly_schedules', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('category_id');
             $table->json('menu_id');
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
-            $table->enum('status', ['Active', 'Not Active']);
+            $table->foreign('category_id')->references('id')->on('categories');
             $table->timestamps();
         });
     }

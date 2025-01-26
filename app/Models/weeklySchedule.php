@@ -9,9 +9,7 @@ class WeeklySchedule extends Model
     protected $fillable = [
         'id',
         'menu_id',
-        'status',
-        'start_date',
-        'end_date'
+        'category_id', 
     ];
 
     protected $casts = [
@@ -21,5 +19,10 @@ class WeeklySchedule extends Model
     public function menu()
     {
         return $this->belongsTo(Menus::class, 'menu_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Categories::class, 'category_id');
     }
 }

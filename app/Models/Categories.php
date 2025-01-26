@@ -13,6 +13,7 @@ class Categories extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'id',
         'name',
         'description',
         'attachments',
@@ -23,4 +24,11 @@ class Categories extends Model
     {
         return $this->hasMany(Menus::class);
     }
+
+    public function schedule()
+    {
+        return $this->hasOne(WeeklySchedule::class, 'category_id');
+    }
+
+    
 }
