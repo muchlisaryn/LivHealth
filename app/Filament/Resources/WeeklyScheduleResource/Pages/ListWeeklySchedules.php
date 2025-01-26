@@ -10,7 +10,6 @@ class ListWeeklySchedules extends ListRecords
 {
     protected static string $resource = WeeklyScheduleResource::class;
 
-    protected static bool $hasBreadcrumbs = false;
 
     protected static ?string $title = 'Weekly Schedules';
 

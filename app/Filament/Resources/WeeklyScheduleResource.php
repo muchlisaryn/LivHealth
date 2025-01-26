@@ -59,7 +59,7 @@ class WeeklyScheduleResource extends Resource
                         // Gabungkan nama-nama menu menjadi satu string yang dipisahkan dengan koma
                         return implode(', ', $menus);
                     })
-                    ->searchable(),
+                  
             ])
             ->filters([
                 // Tables\Filters\TrashedFilter::make(),

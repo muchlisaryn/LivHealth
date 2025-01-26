@@ -44,6 +44,13 @@ class ProgramsResource extends Resource
                 Forms\Components\TextInput::make('duration_days')
                     ->required()
                     ->numeric(),
+                Forms\Components\FileUpload::make('attachments')
+                    ->directory('programs')
+                    ->image()
+                    ->openable()
+                    ->reorderable()
+                    ->appendFiles()
+                    ->columnSpanFull(),
                 
             ]);
     }

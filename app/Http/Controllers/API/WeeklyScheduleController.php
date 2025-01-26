@@ -3,43 +3,27 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\Categories;
-use App\Models\Menus;
+use App\Models\WeeklySchedule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class CategoryController extends Controller
-{   
-    public function getCount() : JsonResponse
-    {
-        $count = Categories::count();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Get Cout Category',
-            'count' => $count
-        ]);
-    }
+class WeeklyScheduleController extends Controller
+{
     /**
      * Display a listing of the resource.
      */
-    public function index() : JsonResponse
+    public function index()  : JsonResponse
     {
-        //
-        $result = [];
+        $result = WeeklySchedule::with(['menu', 'category'])->get();
 
+       $result->transform(function($schedule) {
+            $schedule->category->name;
+            return $schedule;
+       });
 
-        $categories = Categories::all()->take(8);
-
-       
-        foreach($categories as $category) {
-            $category['count'] = Menus::whereJsonContains('category_id', (string)$category->id)->count();
-            $result[] = $category;
-        }
-       
         return response()->json([
             'success' => true,
-            'message' => 'Get All Category',
+            'message' => 'Get all Schedules',
             'data' => $result
         ]);
     }

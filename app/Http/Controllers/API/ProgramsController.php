@@ -16,17 +16,37 @@ class ProgramsController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Get All Programs',
+            'message' => 'Get all programs',
             'data' => $result
         ]);
     }
 
-    public function show(Programs $programs) : JsonResponse
+    public function getCount() : JsonResponse
     {
+        $result = Programs::count();
+
         return response()->json([
             'success' => true,
-            'message' => 'Get detail Programs',
-            'data' => $programs
+            'message' => 'Get count programs',
+            'count' => $result
+        ]);
+    }
+
+    public function show($id) : JsonResponse
+    {
+        $result = Programs::find($id);
+
+        if (!$result) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Program not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get detail programs',
+            'data' => $result
         ]);
     }
 
@@ -44,18 +64,10 @@ class ProgramsController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Get programs by name',
+            'count' => $result->count(),
             'data' => $result
         ]);
     }
 
-    public function getCount() : JsonResponse
-    {
-        $result = Programs::count();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Get All Count Programs',
-            'count' => $result
-        ]);
-    }
+   
 }

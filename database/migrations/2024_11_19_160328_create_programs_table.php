@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description');
             $table->integer('price');
             $table->integer('duration_days');
+            $table->longText('attachments')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

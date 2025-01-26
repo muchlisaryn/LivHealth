@@ -15,7 +15,6 @@ class Menus extends Model
         'category_id',
         'name',
         'description',
-        'price',
         'attachments'
     ];
 
@@ -27,6 +26,11 @@ class Menus extends Model
 
     public function category()
     {
-        return $this->belongsTo(Categories::class, 'category_id');
+        return $this->hasMany(Categories::class, 'category_id');
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(Menus::class, 'menu_id');
     }
 }

@@ -16,76 +16,70 @@ class MenuSeeder extends Seeder
     {
         $menus = [
             [
-                'name' => 'Salad Buah Sehat',
-                'description' => 'Salad buah segar dengan campuran buah-buahan organik.',
-                'price' => 45000, 
+                'name' => 'Salad Sayuran Hijau dengan Biji Chia dan Alpukat',
+                'description' => 'Kombinasi sayuran segar, biji chia, potongan alpukat, dan dressing berbahan dasar minyak zaitun dan lemon.',
+                'category_id' => ['3'],
+                'attachments' => 0, 
+                
+            ],
+            [
+                'name' => 'Sup Kacang Merah dengan Quinoa',
+                'description' => 'Sup berbahan kacang merah, sayuran, dan quinoa yang kaya akan serat dan protein nabati.',
+                'category_id' => ['3'],
                 'attachments' => 0, 
             ],
             [
-                'name' => 'Ayam Panggang Lemon',
-                'description' => 'Ayam panggang dengan bumbu lemon dan rempah alami.',
-                'price' => 75000,
+                'name' => 'Salmon Panggang dengan Brokoli dan Kentang Manis',
+                'description' => 'almon yang dipanggang dengan bumbu herbal, disajikan dengan brokoli kukus dan kentang manis panggang.',
+                'category_id' => ['4'],
+                'attachments' => 0, 
+            ],
+            [
+                'name' => 'Ayam Panggang dengan Salad Sayuran',
+                'description' => 'Ayam tanpa kulit yang dipanggang, disajikan dengan salad sayuran segar dan dressing minyak zaitun.',
+                'category_id' => ['4'],
+                'attachments' => 0, 
+            ],
+            [
+                'name' => 'Omelet Sayuran dengan Keju Feta',
+                'description' => 'Omelet yang terbuat dari telur, sayuran (seperti bayam, paprika, dan tomat), dan taburan keju feta.',
+                'category_id' => ['1','4'],
+                'attachments' => 0, 
+            ],
+            [
+                'name' => 'Ikan Bakar dengan Nasi Merah',
+                'description' => 'Ikan bakar (seperti ikan tilapia atau kakap) disajikan dengan nasi merah dan sayuran kukus.',
+                'category_id' => ['4'],
                 'attachments' => 0,
             ],
             [
-                'name' => 'Smoothie Bowl',
-                'description' => 'Smoothie bowl dengan berbagai buah dan granola.',
-                'price' => 60000,
+                'name' => 'Pizza Sayuran dengan Keju Mozzarella',
+                'description' => 'Pizza berbahan dasar roti gandum, saus tomat, dan topping sayuran seperti zucchini, tomat, dan paprika, serta keju mozzarella.',
+                'category_id' => ['2'],
                 'attachments' => 0,
             ],
             [
-                'name' => 'Nasi Merah dengan Sayuran',
-                'description' => 'Nasi merah dengan berbagai sayuran sehat yang kaya serat.',
-                'price' => 55000,
+                'name' => 'Pancake Gandum dengan Buah Segar',
+                'description' => 'Pancake gandum utuh yang disajikan dengan topping buah-buahan segar (seperti pisang, berry, dan apel).',
+                'category_id' => ['1'],
                 'attachments' => 0,
             ],
             [
-                'name' => 'Soup Ayam Sehat',
-                'description' => 'Soup ayam dengan kaldu bening dan sayuran organik.',
-                'price' => 65000,
+                'name' => 'Mie dengan Udang dan Sayuran',
+                'description' => 'Mie gandum utuh yang disajikan dengan udang panggang dan sayuran segar seperti wortel, kol, dan timun.',
+                'category_id' => ['2', '1'],
                 'attachments' => 0,
             ],
             [
-                'name' => 'Salad Sayur dengan Tahu Tempe',
-                'description' => 'Salad sayuran segar dengan tambahan tahu dan tempe.',
-                'price' => 50000,
-                'attachments' => 0,
-            ],
-            [
-                'name' => 'Quinoa Bowl',
-                'description' => 'Bowl quinoa dengan topping sayuran dan saus tahini.',
-                'price' => 70000,
-                'attachments' => 0,
-            ],
-            [
-                'name' => 'Pasta Sehat dengan Pesto',
-                'description' => 'Pasta gandum dengan saus pesto alami dari daun basil.',
-                'price' => 85000,
-                'attachments' => 0,
-            ],
-            [
-                'name' => 'Grilled Salmon',
-                'description' => 'Salmon panggang dengan bumbu rempah khas.',
-                'price' => 95000,
-                'attachments' => 0,
-            ],
-            [
-                'name' => 'Muffin Protein',
-                'description' => 'Muffin rendah gula dengan tambahan protein untuk energi.',
-                'price' => 40000,
+                'name' => 'Salad Tuna dengan Sayuran Segar',
+                'description' => ' Tuna panggang (atau kalengan, tanpa minyak) yang dicampur dengan sayuran hijau, tomat, dan sedikit minyak zaitun.',
+                'category_id' => ['2', '1'],
                 'attachments' => 0,
             ],
         ];
 
-        // Ambil semua ID kategori yang ada di database
-        $categoryIds = Categories::pluck('id')->toArray();
-
         foreach ($menus as $menu) {
-            if (!empty($categoryIds)) {
-                // Pilih ID kategori secara acak dari array $categoryIds
-                $menu['category_id'] = $categoryIds[array_rand($categoryIds)];
-            }
-
+           
             Menus::create($menu);
         }
     }

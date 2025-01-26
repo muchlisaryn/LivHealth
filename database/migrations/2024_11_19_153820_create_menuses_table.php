@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('category_id')->constrained('categories');
             $table->string('name')->unique();
             $table->text('description');
-            $table->integer('price')->unsigned()->default(0);
             $table->longText('attachments')->default(0);
             $table->timestamps();
             $table->softDeletes();

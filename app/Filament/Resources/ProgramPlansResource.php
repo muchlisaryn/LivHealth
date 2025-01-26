@@ -115,24 +115,11 @@ class ProgramPlansResource extends Resource
                         ->label('Menu')
                         ->required()
                         ->searchable()
-                        ->multiple()
                         ->options(function () {
-                            $schedules = weeklySchedule::whereDate('start_date', '<=', Carbon::now())
-                            ->whereDate('end_date', '>=', Carbon::now())
-                            ->Where('status', 'Active')
-                            ->get();
-
-                            $options = [];
-
-                            foreach ($schedules as $schedule) {
-                                foreach ($schedule->menu_id as $menuId) {
-                                    $menu = Menus::find($menuId);
-                                    if($menu){
-                                        $options[$menu->id] = $menu->name;
-                                    }
-                                }
-                            }
-                            return $options;
+                            $schedules = weeklySchedule::all()->mapWithKeys(function($schedule) {
+                                return[$schedule->id =>  $schedule->category->name]; 
+                            });
+                            return $schedules;
                         }) 
                 ])
                 ->action(function(ProgramPlans $plans, array $data) {
