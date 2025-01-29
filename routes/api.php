@@ -17,9 +17,11 @@ Route::resource('programs', ProgramsController::class)->only(['index', 'show']);
 
 
 Route::get('categories/count', [CategoryController::class, 'getCount']);
-Route::resource('categories', CategoryController::class)->only(['index']);
+Route::resource('categories', CategoryController::class)->only(['index', 'show']);
+
 
 Route::get('menu/count', [MenuController::class, 'getCount']);
+Route::resource('menu', MenuController::class)->only(['index']);
 
 Route::resource('weekly-schedules', WeeklyScheduleController::class)->only(['index']);
 

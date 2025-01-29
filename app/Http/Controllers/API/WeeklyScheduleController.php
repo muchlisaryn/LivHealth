@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Menus;
 use App\Models\WeeklySchedule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class WeeklyScheduleController extends Controller
 {
@@ -14,18 +16,40 @@ class WeeklyScheduleController extends Controller
      */
     public function index()  : JsonResponse
     {
-        $result = WeeklySchedule::with(['menu', 'category'])->get();
+       try {
+            $datas = WeeklySchedule::with(['category'])->get();
 
-       $result->transform(function($schedule) {
-            $schedule->category->name;
-            return $schedule;
-       });
+            $result = [];
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Get all Schedules',
-            'data' => $result
-        ]);
+            foreach ($datas as $data) {
+                $menus = array_map('intval', $data->menu_id);
+                $get_relation_in_menu = Menus::whereIn('id' , $menus)->get();
+
+                $category = $data->category->name;
+                $menu = $get_relation_in_menu->pluck('name');
+                $result[] = [
+                    'category' => $category,
+                    'menu' => $menu
+                ];
+               
+            }
+
+           return response()->json([
+                'success' => true,
+                'message' => 'Get all Schedules',
+                'data' => $result
+            ]);
+       }catch (\Exception $e) {
+           Log::error('Error occurred: ' . $e->getMessage());
+
+            // Return a custom response
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred',
+                'error' => $e->getMessage(), // Optional: include the actual error message
+            ], 500); // 500 = Internal Server Error
+       }
+       
     }
 
     /**

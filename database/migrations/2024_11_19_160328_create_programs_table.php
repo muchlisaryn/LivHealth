@@ -13,11 +13,13 @@ return new class extends Migration
     {   
         Schema::create('programs', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('category_id');
             $table->string('name')->unique();
             $table->text('description');
             $table->integer('price');
             $table->integer('duration_days');
             $table->longText('attachments')->nullable();
+            $table->foreign('category_id')->references('id')->on('programs');
             $table->timestamps();
             $table->softDeletes();
         });

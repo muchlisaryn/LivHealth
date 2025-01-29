@@ -106,35 +106,35 @@ class ProgramPlansResource extends Resource
                 })
                 ->hidden(fn(ProgramPlans $program) => $program->status != 'Pending'),
                 
-                Action::make('Order')
-                ->button()
-                ->color('info')
-                ->requiresConfirmation()
-                ->form([
-                    Forms\Components\Select::make('menu_id')
-                        ->label('Menu')
-                        ->required()
-                        ->searchable()
-                        ->options(function () {
-                            $schedules = weeklySchedule::all()->mapWithKeys(function($schedule) {
-                                return[$schedule->id =>  $schedule->category->name]; 
-                            });
-                            return $schedules;
-                        }) 
-                ])
-                ->action(function(ProgramPlans $plans, array $data) {
-                    OrderCooking::create([
-                        'user_program_id' => $plans->id,
-                        'menu_id' => $data['menu_id']
-                    ]);
+                // Action::make('Order')
+                // ->button()
+                // ->color('info')
+                // ->requiresConfirmation()
+                // ->form([
+                //     Forms\Components\Select::make('menu_id')
+                //         ->label('Menu')
+                //         ->required()
+                //         ->searchable()
+                //         ->options(function () {
+                //             $schedules = weeklySchedule::all()->mapWithKeys(function($schedule) {
+                //                 return[$schedule->id =>  $schedule->category->name]; 
+                //             });
+                //             return $schedules;
+                //         }) 
+                // ])
+                // ->action(function(ProgramPlans $plans, array $data) {
+                //     OrderCooking::create([
+                //         'user_program_id' => $plans->id,
+                //         'menu_id' => $data['menu_id']
+                //     ]);
 
-                    $plans->update([
-                        'remaining_duration' =>  $plans->remaining_duration - 1
-                    ]);
+                //     $plans->update([
+                //         'remaining_duration' =>  $plans->remaining_duration - 1
+                //     ]);
 
 
-                })
-                ->hidden(fn(ProgramPlans $program) => $program->status != 'In Progress')
+                // })
+                // ->hidden(fn(ProgramPlans $program) => $program->status != 'In Progress')
             ])
             ->defaultSort('status', 'desc')
             ->bulkActions([

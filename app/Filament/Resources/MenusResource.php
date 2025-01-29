@@ -46,22 +46,18 @@ class MenusResource extends Resource
                         ->pluck('name', 'id')
                         ->toArray()
                     )
+                    ->columnSpanFull()
                     ->required(),
-                Forms\Components\TextInput::make('price')
-                    ->required()
-                    ->numeric()
-                    ->inputMode('decimal')
-                    ->mask(RawJs::make('$money($input)'))
-                    ->stripCharacters(',')
-                    ->prefix('Rp'),
                 Forms\Components\Textarea::make('description')
                     ->required()
                     ->columnSpanFull(),
                 Forms\Components\FileUpload::make('attachments')
                     ->directory('menu')
-                    ->visibility('public')
+                    ->image()
+                    ->openable()
+                    ->reorderable()
+                    ->appendFiles()
                     ->columnSpanFull()
-                    ->multiple(),
             ]);
     }
 

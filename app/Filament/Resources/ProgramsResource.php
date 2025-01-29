@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProgramsResource\Pages;
 use App\Filament\Resources\ProgramsResource\RelationManagers;
+use App\Models\Categories;
 use App\Models\Menus;
 use App\Models\Programs;
 use Filament\Forms;
@@ -44,6 +45,17 @@ class ProgramsResource extends Resource
                 Forms\Components\TextInput::make('duration_days')
                     ->required()
                     ->numeric(),
+                Forms\Components\Select::make('category_id')
+                    ->label('category')
+                    ->searchable()
+                    ->relationship('category', 'name')
+                    ->options(
+                        Categories::query()
+                        ->pluck('name', 'id')
+                        ->toArray()
+                    )
+                    ->columnSpanFull()
+                    ->required(),
                 Forms\Components\FileUpload::make('attachments')
                     ->directory('programs')
                     ->image()

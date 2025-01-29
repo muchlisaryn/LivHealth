@@ -54,19 +54,31 @@ class ProgramsController extends Controller
     {
         $search_term = $request->query('q');
 
-        $request->validate([
+        $validate =  $request->validate([
             'q' => 'nullable|string|max:255'
         ]);
 
-        $result = Programs::where('name', 'like', '%' . $search_term . '%')
-        ->get();
+       if($validate['q'] ?? null) { 
+            $result_with_search = Programs::where('name', 'like', '%' . $search_term . '%')
+            ->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Get programs by name',
-            'count' => $result->count(),
-            'data' => $result
-        ]);
+             return response()->json([
+                'success' => true,
+                'message' => 'Get programs by name',
+                'count' => $result_with_search->count(),
+                'data' => $result_with_search
+             ]);
+             
+       }else {
+             $result = Programs::all();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Get all programs',
+                'count' => $result->count(),
+                'data' => $result
+            ]);
+       }
     }
 
    

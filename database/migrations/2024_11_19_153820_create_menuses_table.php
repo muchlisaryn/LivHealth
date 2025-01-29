@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('category_id')->constrained('categories');
             $table->string('name')->unique();
             $table->text('description');
-            $table->longText('attachments')->default(0);
+            $table->longText('attachments')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -20,7 +20,7 @@ class WeeklySchedule extends Model
 
     public function menu()
     {
-        return $this->belongsTo(Menus::class, 'menu_id');
+        return $this->belongsToMany(Menus::class, 'menu_id');
     }
 
     public function category()

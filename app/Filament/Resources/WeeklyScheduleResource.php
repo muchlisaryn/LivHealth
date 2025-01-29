@@ -113,7 +113,7 @@ class WeeklyScheduleResource extends Resource
                     }
                 })
                 ->hidden(function($record) {
-                    $findWeeklySchedules = WeeklySchedule::where('id' , $record->id)->exists();
+                    $findWeeklySchedules = WeeklySchedule::where('category_id' , $record->id)->exists();
                   
                     if($findWeeklySchedules){
                         return false;
@@ -147,7 +147,7 @@ class WeeklyScheduleResource extends Resource
                     ->rules('max:2') 
                     ->helperText('Pilih maksimal 2 menu')
                 ])
-                ->action(function($record ,WeeklySchedule $schedule, array $data) {
+                ->action(function($record, WeeklySchedule $schedule, array $data) {
                     try {
                         $schedule->create([
                             'category_id' => $record->id,
@@ -158,7 +158,8 @@ class WeeklyScheduleResource extends Resource
                     }
                 })
                 ->hidden(function($record) {
-                    $findWeeklySchedules = WeeklySchedule::where('id' , $record->id)->exists();
+
+                    $findWeeklySchedules = WeeklySchedule::where('category_id' , $record->id)->exists();
                   
                     if($findWeeklySchedules){
                         return true;

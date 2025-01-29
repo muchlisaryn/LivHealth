@@ -19,7 +19,6 @@ class Menus extends Model
     ];
 
     protected $casts = [
-        'attachments' => 'array',
         'category_id' => 'array'
     ];
 

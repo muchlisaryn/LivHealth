@@ -13,6 +13,7 @@ class Programs extends Model
 
     protected $fillable = [
         'id',
+        'category_id',
         'name',
         'description',
         'price',
@@ -20,5 +21,10 @@ class Programs extends Model
         'attachments'
     ];
 
+
+    public function category()
+    {
+        return $this->hasMany(Categories::class, 'category_id');
+    }
 
 }
