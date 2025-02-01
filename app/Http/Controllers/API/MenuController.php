@@ -69,9 +69,27 @@ class MenuController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id) : JsonResponse
     {
-        //
+        try {
+            $get_data = Menus::where('id', $id)->first();
+
+            return response()->json([
+            'success' => true,
+            'message' => 'Get details Category',
+            'data' => $get_data
+        ]);
+
+        } catch (\Exception $e) {
+             Log::error('Error occurred: ' . $e->getMessage());
+
+            // Return a custom response
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred',
+                'error' => $e->getMessage(), // Optional: include the actual error message
+            ], 500); // 500 = Internal Server Error
+        }
     }
 
     /**

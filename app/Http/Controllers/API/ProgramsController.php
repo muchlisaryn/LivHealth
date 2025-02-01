@@ -36,6 +36,8 @@ class ProgramsController extends Controller
     {
         $result = Programs::find($id);
 
+        $result['shiping_cost'] = $result['duration_days'] * 9000;
+
         if (!$result) {
             return response()->json([
                 'success' => false,

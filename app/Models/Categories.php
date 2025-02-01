@@ -22,7 +22,7 @@ class Categories extends Model
 
     public function menu() : HasMany
     {
-        return $this->hasMany(Menus::class);
+        return $this->hasMany(Menus::class, 'category_id');
     }
 
     public function schedule()

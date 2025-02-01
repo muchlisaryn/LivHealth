@@ -13,10 +13,11 @@ return new class extends Migration
     {   
         Schema::create('menuses', function (Blueprint $table) {
             $table->id();
-            $table->string('category_id')->constrained('categories');
+            $table->json('category_id');
             $table->string('name')->unique();
             $table->text('description');
             $table->longText('attachments')->nullable();
+            // $table->foreign('category_id')->references('id')->on('categories');
             $table->timestamps();
             $table->softDeletes();
         });

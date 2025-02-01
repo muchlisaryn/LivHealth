@@ -37,7 +37,7 @@ class UsersResource extends Resource
                Forms\Components\Select::make('role')
                     ->options([
                         'customer' => 'customer',
-                        'finance' => 'finanace',
+                        'finance' => 'finance',
                         'owner' => 'owner',
                         'koki' => 'koki',
                         'kurir' => 'kurir',

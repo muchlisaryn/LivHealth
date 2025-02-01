@@ -15,6 +15,7 @@ return new class extends Migration
         Schema::create('bank_names', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('no_rek');
             $table->timestamps();
             $table->softDeletes();
         });
