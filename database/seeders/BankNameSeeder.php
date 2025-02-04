@@ -12,9 +12,7 @@ class BankNameSeeder extends Seeder
      */
     public function run(): void
     {
-        $bank = [['name' => 'BCA', 'no_rek' => 338876543], [ 'name' => 'BNI', 'no_rek' => 338834542], ['name' => 'BRI', 'no_rek' => 338834542], [ 'name' => 'BSI', 'no_rek' => 338834542], [ 'name' => 'MANDIRI', 'no_rek' => 338843342],[ 'name' => 'BANK DKI', 'no_rek' => 335574542] ];
-        foreach($bank as $data) {
-            BankName::create($data);
-        }
+        $bank = ['bank_name' => 'BCA', 'name' => 'PT LIVE HEALTH' , 'no_rek' => 338876543];
+        BankName::create($bank);
     }
 }

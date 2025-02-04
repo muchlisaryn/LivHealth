@@ -27,8 +27,15 @@ class BankNameResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('bank_name')
+                    ->required()
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('name')
                     ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('no_rek')
+                    ->required()
+                    ->columnSpanFull()
                     ->maxLength(255),
             ]);
     }
@@ -37,22 +44,20 @@ class BankNameResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('bank_name'),
+                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('no_rek')
+                  
             ])
             ->filters([
                 // Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+              
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                ]),
+               
             ]);
     }
 
@@ -67,7 +72,6 @@ class BankNameResource extends Resource
     {
         return [
             'index' => Pages\ListBankNames::route('/'),
-            'create' => Pages\CreateBankName::route('/create'),
             'edit' => Pages\EditBankName::route('/{record}/edit'),
         ];
     }

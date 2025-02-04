@@ -105,7 +105,7 @@ class TransactionResource extends Resource
                     ]);
                     Notification::make()->success('Transaction Approved!')->body('Payment has been approved successfully')->icon('heroicon-o-check')->send();
                 })
-                ->hidden(fn(Transaction $transaction) => $transaction->status != 'Pending' ),
+                ->hidden(fn(Transaction $transaction) => $transaction->status != 'Paid Payment' ),
                 
                 Action::make('Reactivate')
                 ->button()
@@ -168,6 +168,7 @@ class TransactionResource extends Resource
                 ->modalSubmitAction(false)
                 ->hidden(fn(Transaction $transaction) => $transaction->status != 'Payment Rejected'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->defaultSort('status', 'asc')
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([

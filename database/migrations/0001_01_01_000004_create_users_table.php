@@ -15,11 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->unsignedBigInteger('city_id')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone')->nullable();
             $table->text('address')->nullable();
             $table->enum('role', [ 'customer' ,'finance', 'owner', 'koki', 'kurir', 'ahli gizi', 'admin'])->default('customer');
+            $table->foreign('city_id')->references('id')->on('shipping_costs');
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('order_price');
             $table->integer('shipping_price');
             $table->integer('sub_total');
-            $table->enum('status' , ['Pending', 'Confirmed' , 'Payment Rejected' , 'Verified Payment', 'Cooking' , 'Order Completely Cooked',  'Delivered', 'Canceled'])->default('Pending');
+            $table->enum('status' , ['Pending', 'Paid Payment' ,'Confirmed' , 'Payment Rejected' , 'Verified Payment', 'Cooking' , 'Order Completely Cooked',  'Delivered', 'Canceled'])->default('Pending');
             $table->longText('canceled_reason')->nullable();
             $table->timestamps();
             $table->softDeletes();

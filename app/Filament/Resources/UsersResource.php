@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UsersResource\Pages;
 use App\Filament\Resources\UsersResource\RelationManagers;
+use App\Models\ShippingCost;
 use App\Models\User;
 use App\Models\Users;
 use Filament\Forms;
@@ -60,6 +61,15 @@ class UsersResource extends Resource
                     ->tel()
                     ->maxLength(255)
                     ->default(null),
+                Forms\Components\Select::make('city_id')
+                    ->label('City')
+                    ->options(   
+                        ShippingCost::query()
+                       ->pluck('name', 'id')
+                       ->toArray()
+                       )
+                    ->columnSpanFull()
+                    ->required(),
                 Forms\Components\Textarea::make('address')
                     ->rows(10)
                     ->columnSpanFull(),

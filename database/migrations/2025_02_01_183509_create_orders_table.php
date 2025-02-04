@@ -10,15 +10,14 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {   
-
-        Schema::create('bank_names', function (Blueprint $table) {
+    {
+        Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string('bank_name');
-            $table->string('name');
-            $table->integer('no_rek');
+            $table->unsignedBigInteger('category_id');
+            $table->date('date');
+            $table->enum('status', ['New', 'Cooking', 'Delivered', 'Completed'])->default('New');
+            $table->foreign('category_id')->references('id')->on('categories');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bank_names');
+        Schema::dropIfExists('orders');
     }
 };
