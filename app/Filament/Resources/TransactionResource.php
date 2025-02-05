@@ -13,7 +13,9 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class TransactionResource extends Resource
 {
@@ -22,6 +24,16 @@ class TransactionResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $navigationGroup = 'Admin';
+
+       public static function canAccess(): bool
+    {
+        return Auth::check() && Auth::user()->role === 'admin';
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return Auth::user()->role === 'admin';
+    }
 
     public static function form(Form $form): Form
     {
@@ -44,6 +56,8 @@ class TransactionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            
+            ->defaultGroup('status')
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->label('No Transaksi')
@@ -60,6 +74,7 @@ class TransactionResource extends Resource
                     ->prefix('Rp'),
                 Tables\Columns\TextColumn::make('status')->badge()->color(fn(string $state) : string => match($state) {
                     'Pending' => 'gray',
+                    'Paid Payment' => 'success',
                     'Confirmed' => 'success',
                     'Verified Payment' => 'success',
                     'Order Completely Cooked' => 'success',
@@ -168,8 +183,7 @@ class TransactionResource extends Resource
                 ->modalSubmitAction(false)
                 ->hidden(fn(Transaction $transaction) => $transaction->status != 'Payment Rejected'),
             ])
-            ->defaultSort('created_at', 'desc')
-            ->defaultSort('status', 'asc')
+            ->defaultSort('status', 'desc')
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),

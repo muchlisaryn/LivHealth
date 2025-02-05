@@ -15,7 +15,9 @@ use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class WeeklyScheduleResource extends Resource
 {
@@ -27,6 +29,16 @@ class WeeklyScheduleResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Ahli Gizi';
+
+       public static function canAccess(): bool
+    {
+        return Auth::check() && Auth::user()->role === 'ahli gizi';
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return Auth::user()->role === 'ahli gizi';
+    }
 
     public static function form(Form $form): Form
     {

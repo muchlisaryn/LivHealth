@@ -3,10 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TransactionPaymentResource\Pages;
+use App\Models\Order;
 use App\Models\OrderCooking;
 use App\Models\ProgramPlans;
 use App\Models\Transaction;
 use App\Models\TransactionPayment;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -15,7 +17,9 @@ use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class TransactionPaymentResource extends Resource
@@ -25,6 +29,16 @@ class TransactionPaymentResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $navigationGroup = 'Finance';
+
+    public static function canAccess(): bool
+    {
+        return Auth::check() && Auth::user()->role === 'finance';
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return Auth::user()->role === 'finance';
+    }
 
     public static function form(Form $form): Form
     {
@@ -70,6 +84,7 @@ class TransactionPaymentResource extends Resource
             ->filters([
                
             ])
+            ->defaultGroup('status_payment')
             ->actions([
                 Action::make('Reason')
                 ->button()
@@ -93,6 +108,7 @@ class TransactionPaymentResource extends Resource
                 ->modalHeading('Confirmation Payment')
                 ->modalContent(function(TransactionPayment $payment){
                     return view('components.confirmed-payment', [
+                        'proof' => $payment->attachments,
                         'status_payment' => $payment->status_payment,
                         'date_payment' => $payment->created_at,
                         'programs_duration' => $payment->transaction->programs->duration_days,
@@ -123,9 +139,13 @@ class TransactionPaymentResource extends Resource
                                 'status_payment' => 'Verified'
                             ]);
     
-                            ProgramPlans::create([
-                                'transaction_id' => $transaction->id,
-                            ]);
+                            for($i = 0; $i < $transaction->programs->duration_days; $i++) {
+                                Order::create([
+                                    'transaction_id' => $payment->transaction_id,
+                                    'category_id' => $transaction->programs->category_id,
+                                    'date' => Carbon::today()->addDay($i),
+                                ]);
+                            }
                         }
                         
                         Notification::make()->success('Transaction Approved!')->body('Payment has been approved successfully')->icon('heroicon-o-check')->send();

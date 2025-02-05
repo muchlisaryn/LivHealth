@@ -13,7 +13,9 @@ use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class CashFlowResource extends Resource
 {
@@ -23,6 +25,16 @@ class CashFlowResource extends Resource
 
     protected static ?string $navigationGroup = 'Finance';
 
+     // Ensure only finance users can see this menu
+    public static function canAccess(): bool
+    {
+        return Auth::check() && Auth::user()->role === 'finance';
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return Auth::user()->role === 'finance';
+    }
     public static function form(Form $form): Form
     {
         return $form

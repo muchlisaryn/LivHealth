@@ -11,7 +11,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class BankNameResource extends Resource
 {
@@ -22,6 +24,17 @@ class BankNameResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
     protected static ?string $navigationGroup = 'Master';
+
+       // Ensure only finance users can see this menu
+    public static function canAccess(): bool
+    {
+        return Auth::check() && Auth::user()->role === 'finance';
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return Auth::user()->role === 'finance';
+    }
 
     public static function form(Form $form): Form
     {

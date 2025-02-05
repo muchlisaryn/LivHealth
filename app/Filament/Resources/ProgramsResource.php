@@ -14,7 +14,9 @@ use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class ProgramsResource extends Resource
 {
@@ -23,6 +25,16 @@ class ProgramsResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Master';
+
+       public static function canAccess(): bool
+    {
+        return Auth::check() && Auth::user()->role === 'ahli gizi';
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return Auth::user()->role === 'ahli gizi';
+    }
 
     public static function form(Form $form): Form
     {

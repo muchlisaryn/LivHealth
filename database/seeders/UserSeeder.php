@@ -18,49 +18,49 @@ class UserSeeder extends Seeder
                 'name' => 'Reyhan',
                 'email' => 'reyhan@livhealth.com',
                 'password' => '123456',
-    
+                'address' => "Jl Kemang I 4 B, Dki Jakarta",
                 'role' => 'admin'
             ],
             [
                 'name' => 'Adit',
                 'email' => 'admin@livhealth.com',
                 'password' => '123456',
-    
+                'address' => "Jl HR Rasuna Said Kav H 1-2 Puri Matari, Dki Jakarta",
                 'role' => 'admin'
             ],
             [
-                'name' => 'Hendra',
+                'name' => 'Tina',
                 'email' => 'owner@livhealth.com',
                 'password' => '123456',
-                
+                'address' => "Jl HR Rasuna Said Kav H 1-2 Puri Matari, Dki Jakarta",
                 'role' => 'owner'
             ],
             [
                 'name' => 'Darko',
                 'email' => 'finance@livhealth.com',
                 'password' => '123456',
-               
+                'address' => "Jl HR Rasuna Said Kav H 1-2 Puri Matari, Dki Jakarta",
                 'role' => 'finance'
             ],
             [
                 'name' => 'Budi',
                 'email' => 'kurir@livhealth.com',
                 'password' => '123456',
-               
+                'address' => "Jl HR Rasuna Said Kav H 1-2 Puri Matari, Dki Jakarta",
                 'role' => 'kurir'
             ],
             [
                 'name' => 'Indra',
-                'email' => 'customer@livhealth.com',
+                'email' => 'ahli-gizi@livhealth.com',
                 'password' => '123456',
-               
-                'role' => 'customer'
+                'address' => "Jl HR Rasuna Said Kav H 1-2 Puri Matari, Dki Jakarta",
+                'role' => 'ahli gizi'
             ],
             [
                 'name' => 'Agung',
-                'email' => 'agung@livhealth.com',
+                'email' => 'customer@livhealth.com',
                 'password' => '123456',
-    
+                'address' => "Jl Pluit Raya 32 AC, Dki Jakarta",
                 'role' => 'customer'
             ],
         ];

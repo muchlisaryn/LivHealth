@@ -30,8 +30,5 @@ class OrderCooking extends Model
         return $this->belongsTo(Menus::class, 'menu_id');
     }
 
-    public function chef()
-    {
-        return $this->belongsTo(OrderCooking::class, 'chef_id');
-    }
+   
 }

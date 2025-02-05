@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('transaction_id');
             $table->unsignedBigInteger('category_id');
             $table->date('date');
-            $table->enum('status', ['New', 'Cooking', 'Delivered', 'Completed'])->default('New');
+            $table->enum('status', ['New', 'Cooking', 'Ready for Pickup', 'Delivered', 'Completed'])->default('New');
             $table->foreign('category_id')->references('id')->on('categories');
+            $table->foreign('transaction_id')->references('id')->on('transactions');
             $table->timestamps();
         });
     }

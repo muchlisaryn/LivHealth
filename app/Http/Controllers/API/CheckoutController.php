@@ -7,6 +7,7 @@ use App\Models\BankName;
 use App\Models\Programs;
 use App\Models\ShippingCost;
 use App\Models\Transaction;
+use App\Models\TransactionPayment;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -40,7 +41,20 @@ class CheckoutController extends Controller
     public function DetailsPaymentTransaction($id) : JsonResponse
     {
         try {
-            $transaction = Transaction::find($id);
+            $transactionPayment = TransactionPayment::where('transaction_id', $id)->exists();
+
+            if($transactionPayment){
+                return response()->json([
+                'success' => false,
+                'message' => 'Anda Sudah Melakukan Pembayaran',
+                'reason' => ''
+                 ]);
+            }
+
+
+            $transaction = Transaction::where('id', $id)
+            ->with('programs')
+            ->first();
 
             if(!$transaction){
                 return response()->json([
@@ -51,7 +65,7 @@ class CheckoutController extends Controller
 
             if($transaction['status'] === 'Canceled'){
                  return response()->json([
-                'success' => true,
+                'success' => false,
                 'message' => 'Transaksi Telah Dibatalkan',
                 'reason' => $transaction['canceled_reason']
                  ]);
