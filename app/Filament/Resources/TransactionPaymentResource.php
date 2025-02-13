@@ -10,11 +10,13 @@ use App\Models\Transaction;
 use App\Models\TransactionPayment;
 use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -66,7 +68,8 @@ class TransactionPaymentResource extends Resource
                 ->label('Customer')
                 ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
-                ->label('Waktu Pembayaran'),
+                ->label('Waktu Pembayaran')
+                ->sortable(),
                 Tables\Columns\TextColumn::make('transaction.sub_total')
                 ->label('Total Harga')
                 ->numeric()
@@ -82,7 +85,16 @@ class TransactionPaymentResource extends Resource
                 ->alignCenter(),
             ])
             ->filters([
-               
+               Filter::make('created_at')
+                ->form([
+                    DatePicker::make('from')->label('Dari Tanggal'),
+                    DatePicker::make('to')->label('Sampai Tanggal'),
+                ])
+                ->query(function ($query, array $data) {
+                    return $query
+                        ->when($data['from'], fn($q) => $q->whereDate('created_at', '>=', $data['from']))
+                        ->when($data['to'], fn($q) => $q->whereDate('created_at', '<=', $data['to']));
+                }),
             ])
             ->defaultGroup('status_payment')
             ->actions([

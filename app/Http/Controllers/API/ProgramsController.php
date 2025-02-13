@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Categories;
+use App\Models\Menus;
 use App\Models\Programs;
+use App\Models\WeeklySchedule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -12,7 +15,8 @@ class ProgramsController extends Controller
     //
     public function index(): JsonResponse
     {
-        $result = Programs::all();
+        $result = Programs::with('category')->get();
+        
 
         return response()->json([
             'success' => true,
@@ -33,10 +37,31 @@ class ProgramsController extends Controller
     }
 
     public function show($id) : JsonResponse
-    {
-        $result = Programs::find($id);
+    {   
+        
+        $result = Programs::where('id', $id)
+        ->with('category')
+        ->first();
 
         $result['shiping_cost'] = $result['duration_days'] * 9000;
+        
+
+
+        $get_data_menus = WeeklySchedule::where('category_id', $result['category_id'])->first();
+
+        $menus_today =  Menus::whereIn('id', $get_data_menus->menu_id)->get()->map(function($menu) {
+           $categoryIds = $menu->category_id;
+
+            if(!is_array($categoryIds)){
+                $categoryIds = [];
+            }
+
+            $categories = Categories::whereIn('id', $categoryIds)->get();
+            $menu->category = $categories;
+            return $menu;
+        });
+
+        $result['menu_today'] = $menus_today;
 
         if (!$result) {
             return response()->json([
@@ -50,6 +75,8 @@ class ProgramsController extends Controller
             'message' => 'Get detail programs',
             'data' => $result
         ]);
+
+        
     }
 
     public function searchPrograms(Request $request) : JsonResponse

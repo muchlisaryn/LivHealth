@@ -24,7 +24,7 @@ class Programs extends Model
 
     public function category()
     {
-        return $this->hasMany(Categories::class, 'category_id');
+        return $this->belongsTo(Categories::class, 'category_id');
     }
 
 }

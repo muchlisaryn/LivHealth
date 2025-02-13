@@ -5,11 +5,13 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TransactionResource\Pages;
 use App\Models\Transaction;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -91,12 +93,16 @@ class TransactionResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                SelectFilter::make('status')
-                ->options([
-                    'Pending' => 'Pending',
-                    'Canceled' => 'Canceled',
-                    'Preparing' => 'Preparing'
+                 Filter::make('created_at')
+                ->form([
+                    DatePicker::make('from')->label('Dari Tanggal'),
+                    DatePicker::make('to')->label('Sampai Tanggal'),
                 ])
+                ->query(function ($query, array $data) {
+                    return $query
+                        ->when($data['from'], fn($q) => $q->whereDate('created_at', '>=', $data['from']))
+                        ->when($data['to'], fn($q) => $q->whereDate('created_at', '<=', $data['to']));
+                }),
             ])
             ->actions([
                 Action::make('Confirmed')
