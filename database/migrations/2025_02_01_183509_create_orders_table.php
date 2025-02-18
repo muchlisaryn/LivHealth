@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('transaction_id');
             $table->unsignedBigInteger('category_id');
             $table->date('date');
-            $table->enum('status', ['New', 'Cooking', 'Ready for Pickup', 'Delivered', 'Completed'])->default('New');
+            $table->enum('status', ['Pending', 'On The Way', 'Completed'])->default('Pending');
             $table->foreign('category_id')->references('id')->on('categories');
             $table->foreign('transaction_id')->references('id')->on('transactions');
             $table->timestamps();

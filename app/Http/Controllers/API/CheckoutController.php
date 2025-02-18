@@ -103,12 +103,20 @@ class CheckoutController extends Controller
                 ], 404);
             }
 
-            $user = User::find($request->user_id);
+           $user = User::where('id', $request->user_id)->first();
 
             if(!$user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'User not found'
+                ], 404);
+            }
+
+            
+            if($user->address == null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Alamat belum diisi. Silakan tambahkan alamat terlebih dahulu untuk melanjutkan.'
                 ], 404);
             }
 

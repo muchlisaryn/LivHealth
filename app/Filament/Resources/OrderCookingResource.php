@@ -27,16 +27,18 @@ class OrderCookingResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Koki';
+    protected static ?string $navigationGroup = 'Admin';
+    
+    protected static ?string $navigationLabel = 'Oder List';
 
-      public static function canAccess(): bool
+    public static function canAccess(): bool
     {
-        return Auth::check() && Auth::user()->role === 'koki';
+        return Auth::check() && Auth::user()->role === 'admin';
     }
 
     public static function canView(Model $record): bool
     {
-        return Auth::user()->role === 'koki';
+        return Auth::user()->role === 'admin';
     }
 
     public static function form(Form $form): Form
@@ -56,7 +58,7 @@ class OrderCookingResource extends Resource
         return $table
             ->query(fn (Order $order) => $order
             ->where('date', Carbon::today())
-            ->whereNotIn('status', ['Delivered', 'Completed'])
+            ->whereNotIn('status', ['Completed'])
             )
             ->columns([
                 Tables\Columns\TextColumn::make('transaction.id')
@@ -69,16 +71,16 @@ class OrderCookingResource extends Resource
                     ->label('Customer'),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()->color(fn(string $state) : string => match($state) {
-                        'New' => 'success',
-                        'Cooking' => 'gray',
-                        'Ready for Pickup' => 'info',
+                        'New' => 'info',
+                        'On The Way' => 'gray',
+                        'Completed' => 'success',
                     })
             ])
             ->filters([
                 // Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Action::make('Process')
+                Action::make('Confirm')
                 ->button()
                 ->color('info')
                 ->requiresConfirmation()
@@ -103,7 +105,7 @@ class OrderCookingResource extends Resource
                 ->action(function(Order $order) {
                    try {
                         $order->update([
-                            'status' => 'Cooking',
+                            'status' => 'On The Way',
                         ]);
 
                         Notification::make()->success('order Processed!')->body('The order has been processed successfully.')->icon('heroicon-o-check')->send();
@@ -113,36 +115,6 @@ class OrderCookingResource extends Resource
                    }
                 })
                 ->hidden(fn(Order $order) => $order->status != 'New'),
-
-                Action::make('Completed')
-                ->button()
-                ->color('success')
-                ->requiresConfirmation()
-                ->modalContent(function(Order $order) {
-
-                    $menuIds = WeeklySchedule::where('category_id', $order->category_id)
-                    ->pluck('menu_id')
-                    ->flatten()
-                    ->unique();
-
-                    $menus = Menus::whereIn('id', $menuIds)
-                    ->pluck('name')
-                    ->toArray();
-
-                    return view('components.confirmed-order-cooking' , [
-                        'no_transaksi' => $order->transaction->id,
-                        'nama_customer' => $order->transaction->user->name,
-                        'orders' => $menus
-                    ]);
-                })
-                ->action(function(Order $order) {
-                    $order->update([
-                        'status' => 'Ready for Pickup',
-                    ]);
-
-                    Notification::make()->success('Order Ready for Pickup!')->body('The order is now ready for pickup. Please collect your order at your convenience.')->icon('heroicon-o-check')->send();
-                })
-                ->hidden(fn(Order $order) => $order->status != 'Cooking')
             ])
             ->bulkActions([
                

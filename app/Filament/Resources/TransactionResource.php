@@ -79,9 +79,6 @@ class TransactionResource extends Resource
                     'Paid Payment' => 'success',
                     'Confirmed' => 'success',
                     'Verified Payment' => 'success',
-                    'Order Completely Cooked' => 'success',
-                    'Cooking' => 'info',
-                    'Delivered' => 'warning',
                     'Canceled' => 'danger',
                     'Payment Rejected' => 'danger'
                     })
@@ -139,7 +136,7 @@ class TransactionResource extends Resource
                     ]);
                     Notification::make()->success('Order Reactivated Successfully!')->body('Order Reactivated Successfully!')->icon('heroicon-o-x-circle')->send();
                 })
-                ->hidden(fn(Transaction $transaction) => $transaction->status != 'Canceled' ),
+                ->hidden(fn(Transaction $transaction) => $transaction->status != 'Cancelled' ),
 
                 Action::make('Reason')
                 ->button()
@@ -154,7 +151,7 @@ class TransactionResource extends Resource
                 })
                 ->form(null)
                 ->modalSubmitAction(false)
-                ->hidden(fn(Transaction $transaction) => $transaction->status != 'Canceled'),
+                ->hidden(fn(Transaction $transaction) => $transaction->status != 'Cancelled'),
 
                 Action::make('reject')
                 ->button()
@@ -168,7 +165,7 @@ class TransactionResource extends Resource
                 ])
                 ->action(function(Transaction $transaction, array $data) {
                     Transaction::find($transaction->id)->update([
-                        'status' => 'Canceled',
+                        'status' => 'Cancelled',
                         'canceled_reason' => $data['canceled_reason']
                     ]);
                     Notification::make()->success('Transaction Canceled!')->body('Transaction has been canceled successfully')->icon('heroicon-o-x-circle')->send();
@@ -191,11 +188,7 @@ class TransactionResource extends Resource
             ])
             ->defaultSort('status', 'desc')
             ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                //     Tables\Actions\ForceDeleteBulkAction::make(),
-                //     Tables\Actions\RestoreBulkAction::make(),
-                // ]),
+            
             ]);
     }
 
