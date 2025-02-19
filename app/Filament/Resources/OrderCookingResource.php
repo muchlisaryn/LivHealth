@@ -71,7 +71,7 @@ class OrderCookingResource extends Resource
                     ->label('Customer'),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()->color(fn(string $state) : string => match($state) {
-                        'New' => 'info',
+                        'Pending' => 'info',
                         'On The Way' => 'gray',
                         'Completed' => 'success',
                     })
@@ -114,7 +114,7 @@ class OrderCookingResource extends Resource
                     Notification::make()->danger()->body('Error: ' . $e->getMessage())->send();
                    }
                 })
-                ->hidden(fn(Order $order) => $order->status != 'New'),
+                ->hidden(fn(Order $order) => $order->status != 'Pending'),
             ])
             ->bulkActions([
                

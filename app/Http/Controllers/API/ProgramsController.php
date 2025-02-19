@@ -37,31 +37,33 @@ class ProgramsController extends Controller
     }
 
     public function show($id) : JsonResponse
-    {   
-        
-        $result = Programs::where('id', $id)
-        ->with('category')
-        ->first();
+    {      
+        try {
+            $result = Programs::where('id', $id)
+            ->with('category')
+            ->first();
 
-        $result['shiping_cost'] = $result['duration_days'] * 9000;
-        
+            $result['shiping_cost'] = $result['duration_days'] * 9000;
+            
+            $get_data_menus = WeeklySchedule::where('category_id', $result['category_id'])->first();
 
+            if($get_data_menus || !empty($get_data_menus->menu_id)) {
+                $menus_today =  Menus::whereIn('id', $get_data_menus->menu_id)->get()->map(function($menu) {
+                $categoryIds = $menu->category_id;
 
-        $get_data_menus = WeeklySchedule::where('category_id', $result['category_id'])->first();
+                    if(!is_array($categoryIds)){
+                        $categoryIds = [];
+                    }
 
-        $menus_today =  Menus::whereIn('id', $get_data_menus->menu_id)->get()->map(function($menu) {
-           $categoryIds = $menu->category_id;
+                    $categories = Categories::whereIn('id', $categoryIds)->get();
+                    $menu->category = $categories;
+                    return $menu;
+                });
 
-            if(!is_array($categoryIds)){
-                $categoryIds = [];
+                $result['menu_today'] = $menus_today;
+            }else {
+                $result['menu_today'] = array();
             }
-
-            $categories = Categories::whereIn('id', $categoryIds)->get();
-            $menu->category = $categories;
-            return $menu;
-        });
-
-        $result['menu_today'] = $menus_today;
 
         if (!$result) {
             return response()->json([
@@ -75,6 +77,13 @@ class ProgramsController extends Controller
             'message' => 'Get detail programs',
             'data' => $result
         ]);
+        }catch (\Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed Get Order',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
 
         
     }

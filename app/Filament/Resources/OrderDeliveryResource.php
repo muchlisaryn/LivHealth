@@ -46,7 +46,7 @@ class OrderDeliveryResource extends Resource
     {
         return $table
             ->query(fn (Order $order) => $order
-            ->whereNotIn('status', ['New', 'Cooking'])
+            ->whereNotIn('status', ['Pending'])
             )
             ->columns([
                 Tables\Columns\TextColumn::make('transaction.user.name')
@@ -55,33 +55,13 @@ class OrderDeliveryResource extends Resource
                     ->label('Alamat'),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()->color(fn(string $state) : string => match($state) {
-                        'Ready for Pickup' => 'info',
-                        'Delivered' => 'gray',
+                        'Pending' => 'info',
+                        'On The Way' => 'gray',
                         'Completed' => 'success',
                     })
             ])
             ->filters([
                 //
-            ])
-            ->actions([
-               Action::make('Process')
-                ->button()
-                ->color('info')
-                ->requiresConfirmation()
-                ->modalHeading('Process Delivery')
-                ->action(function(Order $order) {
-                   try {
-                        $order->update([
-                            'status' => 'Delivered',
-                        ]);
-
-                        Notification::make()->success('Order Delivered!')->body('The order has been successfully delivered to the customer.')->icon('heroicon-o-check')->send();
-                 
-                   } catch (\Exception $e) {
-                    Notification::make()->danger()->body('Error: ' . $e->getMessage())->send();
-                   }
-                })
-                ->hidden(fn(Order $order) => $order->status != 'Ready for Pickup'),
             ])
 
             ->actions([
@@ -102,7 +82,7 @@ class OrderDeliveryResource extends Resource
                     Notification::make()->danger()->body('Error: ' . $e->getMessage())->send();
                    }
                 })
-                ->hidden(fn(Order $order) => $order->status != 'Delivered'),
+                ->hidden(fn(Order $order) => $order->status != 'On The Way'),
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
